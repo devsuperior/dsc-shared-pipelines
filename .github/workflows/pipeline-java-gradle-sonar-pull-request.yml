@@ -82,6 +82,7 @@ jobs:
             const SONAR_TOKEN = process.env.SONAR_TOKEN;
             const SONAR_URL = process.env.SONAR_HOST_URL;
             const PROJECT_KEY = process.env.PROJECT_KEY;
+            const SONAR_PROJECT_URL = "$SONAR_URL/dashboard?id=$PROJECT_KEY"
             const METRICS = "bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage";
             
             const response = await fetch(`${SONAR_URL}/api/measures/component?component=${PROJECT_KEY}&metricKeys=${METRICS}`, {
@@ -105,6 +106,8 @@ jobs:
             - 🌫️ Code Smells: ${measures.find(m => m.metric === 'code_smells').value}
             - 🔄 Duplicated Lines (%): ${measures.find(m => m.metric === 'duplicated_lines_density').value}
             - 🛡️ Coverage: ${measures.find(m => m.metric === 'coverage').value}%
+
+            🔗 [View in SonarQube]($SONAR_PROJECT_URL)
             `;
 
             await github.rest.issues.createComment({
