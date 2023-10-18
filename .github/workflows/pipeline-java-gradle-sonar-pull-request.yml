@@ -117,12 +117,11 @@ jobs:
 
             const commentBody = `
             🔍 SonarQube Analysis Results:
-            - 🐞 Bugs: ${measures.find(m => m.metric === 'bugs').value}
+            - 🐞 Bugs: ${measures.find(m => m.metric === 'bugs').value} (Rating: ${reliabilityRating})
             - ⚠️ Vulnerabilities: ${measures.find(m => m.metric === 'vulnerabilities').value} (Rating: ${securityRating})
-            - 🌫️ Code Smells: ${measures.find(m => m.metric === 'code_smells').value} (Maintainability Rating: ${maintainabilityRating})
+            - 🌫️ Code Smells: ${measures.find(m => m.metric === 'code_smells').value} (Rating: ${maintainabilityRating})
             - 🔄 Duplicated Lines (%): ${measures.find(m => m.metric === 'duplicated_lines_density').value}
             - 🛡️ Coverage: ${measures.find(m => m.metric === 'coverage').value}%
-            - 📈 Reliability Rating: ${reliabilityRating}
             - 🔒 Security Review: ${securityReviewRating}
 
             🔗 [View in SonarQube](${SONAR_PROJECT_URL})
