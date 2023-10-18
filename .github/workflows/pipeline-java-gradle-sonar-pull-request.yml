@@ -11,10 +11,8 @@ on:
         required: true
       sonar-token:
         required: true
-        type: string
       sonar-url:
         required: true
-        type: string
 
 jobs:
   build:
