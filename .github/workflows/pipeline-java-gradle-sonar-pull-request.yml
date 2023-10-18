@@ -103,11 +103,11 @@ jobs:
             const measures = data.component.measures;
 
             const ratings = {
-              '1': 'A 💚',
-              '2': 'B 💙',
-              '3': 'C 💛',
-              '4': 'D 🧡',
-              '5': 'E ❤️'
+              '1.0': 'A 💚',
+              '2.0': 'B 💙',
+              '3.0': 'C 💛',
+              '4.0': 'D 🧡',
+              '5.0': 'E ❤️'
             };
 
             const reliabilityRating = ratings[measures.find(m => m.metric === 'reliability_rating').value];
