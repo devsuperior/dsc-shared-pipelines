@@ -107,7 +107,7 @@ jobs:
             - 🔄 Duplicated Lines (%): ${measures.find(m => m.metric === 'duplicated_lines_density').value}
             - 🛡️ Coverage: ${measures.find(m => m.metric === 'coverage').value}%
 
-            🔗 [View in SonarQube]($SONAR_PROJECT_URL)
+            🔗 [View in SonarQube](${$SONAR_PROJECT_URL})
             `;
 
             await github.rest.issues.createComment({
