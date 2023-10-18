@@ -69,33 +69,50 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.sonar-token }}
           SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
-          
+
   comment:
     needs: test
     name: Check Quality Gate and Comment PR
     runs-on: ubuntu-latest
     steps:
-      - name: Post SonarQube metrics as PR comment
+      - name: Fetch and Post SonarQube metrics as PR comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const SONAR_TOKEN = process.env.SONAR_TOKEN;
+            const SONAR_URL = process.env.SONAR_HOST_URL;
+            const PROJECT_KEY = process.env.GITHUB_REPOSITORY.split('/')[1];
+            const METRICS = "bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage";
+            
+            const response = await fetch(`${SONAR_URL}/api/measures/component?componentKey=${PROJECT_KEY}&metricKeys=${METRICS}`, {
+              headers: {
+                'Authorization': `Basic ${Buffer.from(SONAR_TOKEN + ':').toString('base64')}`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Failed to fetch SonarQube metrics. Status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const measures = data.component.measures;
+
+            const commentBody = `
+            🔍 SonarQube Analysis Results:
+            - 🐞 Bugs: ${measures.find(m => m.metric === 'bugs').value}
+            - ⚠️ Vulnerabilities: ${measures.find(m => m.metric === 'vulnerabilities').value}
+            - 🌫️ Code Smells: ${measures.find(m => m.metric === 'code_smells').value}
+            - 🔄 Duplicated Lines (%): ${measures.find(m => m.metric === 'duplicated_lines_density').value}
+            - 🛡️ Coverage: ${measures.find(m => m.metric === 'coverage').value}%
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
         env:
-          GITHUB_TOKEN: ${{ secrets.github-token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.sonar-token }}
           SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
-        run: |        
-          METRICS="bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage"
-          
-          METRICS_JSON=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_URL/api/measures/component?componentKey=$PROJECT_KEY&metricKeys=$METRICS")
-
-          # Extraia métricas usando jq
-          BUGS=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="bugs") | .value')
-          VULNERABILITIES=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="vulnerabilities") | .value')
-          CODE_SMELLS=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="code_smells") | .value')
-          DUPLICATED_LINES=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value')
-          COVERAGE=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="coverage") | .value')
-
-          COMMENT_BODY="SonarQube Analysis Results: \n - Bugs: $BUGS \n - Vulnerabilities: $VULNERABILITIES \n - Code Smells: $CODE_SMELLS \n - Duplicated Lines (%): $DUPLICATED_LINES \n - Coverage: $COVERAGE%"
-
-          curl -s -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "{\"body\": \"$COMMENT_BODY\"}" \
-              "${{ github.event.repository.url }}/issues/${{ github.event.pull_request.number }}/comments"
