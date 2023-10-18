@@ -98,4 +98,4 @@ jobs:
               -H "Authorization: token $GITHUB_TOKEN" \
               -H "Content-Type: application/json" \
               -d "{\"body\": \"$COMMENT_BODY\"}" \
-              "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/comments"
+              "${{ github.event.repository.url }}/issues/${{ github.event.pull_request.number }}/comments"
