@@ -64,6 +64,7 @@ jobs:
             -Dsonar.projectKey=${{ inputs.project-key }}
             -Dsonar.sources=src/main/
             -Dsonar.test=src/test/
+            -Dsonar.java.binaries=build/classes/
             
         env:
           SONAR_TOKEN: ${{ secrets.sonar-token }}
