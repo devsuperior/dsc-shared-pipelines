@@ -1,9 +1,20 @@
 name: SonarQube Pre Analysis on PR
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      sonar-token:
+        required: true
+        type: string
+      sonar-url:
+        required: true
+        type: string
+      project-key:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
 
 jobs:
   build:
@@ -59,10 +70,10 @@ jobs:
     steps:
       - name: Post SonarQube metrics as PR comment
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_URL: ${{ secrets.SONAR_URL }}
-          PROJECT_KEY: ${{ github.event.repository.name }}
+          SONAR_TOKEN: ${{ inputs.sonar-token }}
+          SONAR_HOST_URL: ${{ inputs.sonar-url }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
+          PROJECT_KEY: ${{ inputs.project-key }}
         run: |        
           METRICS="bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage"
           
