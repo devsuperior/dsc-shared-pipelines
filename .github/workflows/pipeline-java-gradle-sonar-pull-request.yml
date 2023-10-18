@@ -11,8 +11,13 @@ on:
         required: true
       sonar-token:
         required: true
-      sonar-url:
+      sonar-host-url:
         required: true
+
+env:
+  SONAR_TOKEN: ${{ inputs.sonar-token }}
+  SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
+  PROJECT_KEY: ${{ inputs.project-key }}
 
 jobs:
   build:
@@ -57,9 +62,6 @@ jobs:
         uses: sonarsource/sonarqube-scan-action@v1
         with:
           projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
 
   comment:
     needs: test
@@ -68,10 +70,7 @@ jobs:
     steps:
       - name: Post SonarQube metrics as PR comment
         env:
-          SONAR_TOKEN: ${{ inputs.sonar-token }}
-          SONAR_HOST_URL: ${{ inputs.sonar-url }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
-          PROJECT_KEY: ${{ inputs.project-key }}
         run: |        
           METRICS="bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage"
           
