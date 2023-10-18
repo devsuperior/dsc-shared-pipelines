@@ -97,6 +97,9 @@ jobs:
             }
             
             const data = await response.json();
+
+            console.log(data);
+
             const measures = data.component.measures;
 
             const ratings = {
