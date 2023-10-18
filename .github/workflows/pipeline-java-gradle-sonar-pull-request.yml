@@ -15,8 +15,6 @@ on:
         required: true
 
 env:
-  SONAR_TOKEN: ${{ inputs.sonar-token }}
-  SONAR_HOST_URL: ${{ inputs.sonar-host-url }}
   PROJECT_KEY: ${{ inputs.project-key }}
 
 jobs:
@@ -63,8 +61,8 @@ jobs:
         with:
           projectBaseDir: .
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
+          SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
           
   comment:
     needs: test
@@ -74,6 +72,8 @@ jobs:
       - name: Post SonarQube metrics as PR comment
         env:
           GITHUB_TOKEN: ${{ secrets.github-token }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
+          SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
         run: |        
           METRICS="bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage"
           
