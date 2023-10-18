@@ -1,0 +1,84 @@
+name: SonarQube Pre Analysis on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: build/
+
+  test:
+    needs: build
+    name: Analyze with Sonar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+          path: build/
+
+      - name: SonarQube Code Scan
+        uses: sonarsource/sonarqube-scan-action@v1
+        with:
+          projectBaseDir: .
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+
+  comment:
+    needs: test
+    name: Check Quality Gate and Comment PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post SonarQube metrics as PR comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_URL: ${{ secrets.SONAR_URL }}
+          PROJECT_KEY: ${{ github.event.repository.name }}
+        run: |        
+          METRICS="bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage"
+          
+          METRICS_JSON=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_URL/api/measures/component?componentKey=$PROJECT_KEY&metricKeys=$METRICS")
+
+          # Extraia métricas usando jq
+          BUGS=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="bugs") | .value')
+          VULNERABILITIES=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="vulnerabilities") | .value')
+          CODE_SMELLS=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="code_smells") | .value')
+          DUPLICATED_LINES=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="duplicated_lines_density") | .value')
+          COVERAGE=$(echo "$METRICS_JSON" | jq -r '.component.measures[] | select(.metric=="coverage") | .value')
+
+          COMMENT_BODY="SonarQube Analysis Results: \n - Bugs: $BUGS \n - Vulnerabilities: $VULNERABILITIES \n - Code Smells: $CODE_SMELLS \n - Duplicated Lines (%): $DUPLICATED_LINES \n - Coverage: $COVERAGE%"
+
+          curl -s -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT_BODY\"}" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/comments"
