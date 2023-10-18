@@ -62,7 +62,9 @@ jobs:
           projectBaseDir: .
           args: >
             -Dsonar.projectKey=${{ inputs.project-key }}
-            -Dsonar.java.binaries=build/classes/java/main
+            -Dsonar.sources=src/main/
+            -Dsonar.test=src/test/
+            
         env:
           SONAR_TOKEN: ${{ secrets.sonar-token }}
           SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
