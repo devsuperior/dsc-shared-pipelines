@@ -84,7 +84,7 @@ jobs:
             const PROJECT_KEY = process.env.PROJECT_KEY;
             const METRICS = "bugs,vulnerabilities,code_smells,duplicated_lines_density,coverage";
             
-            const response = await fetch(`${SONAR_URL}/api/measures/component?componentKey=${PROJECT_KEY}&metricKeys=${METRICS}`, {
+            const response = await fetch(`${SONAR_URL}/api/measures/${PROJECT_KEY}?metricKeys=${METRICS}`, {
               headers: {
                 'Authorization': `Basic ${Buffer.from(SONAR_TOKEN + ':').toString('base64')}`
               }
