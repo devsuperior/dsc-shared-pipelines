@@ -14,8 +14,6 @@ jobs:
 
       - name: Setup basic environment variable
         run: |
-          #!/bin/bash
-
           # Environment name
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENVIRONMENT_NAME=prd" >> $GITHUB_ENV
