@@ -42,6 +42,8 @@ jobs:
   build-template-parameters:
     needs: [checkout-code, build-env-vars]
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-build-complete-template-parameters.yml@main
+    with:
+      template-parameters-path: ${{ inputs.template-parameters-path }}
 
   deploy:
     name: Deploy

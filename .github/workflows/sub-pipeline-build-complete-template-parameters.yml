@@ -2,7 +2,11 @@ name: Build complete template parameters
 
 on:
   workflow_call:
-
+    inputs:
+      template-parameters-path:
+        required: true
+        type: string
+        
 permissions:
   contents: read
 
@@ -14,7 +18,7 @@ jobs:
       - name: Run script to build complete template parameters
         run: |
           # Remove a chave "Repository" e "EnvironmentName" se ela existir
-          jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' infra/template-parameters.json > temp.json
+          jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' ${{ inputs.template-parameters-path }} > temp.json
 
           # Adiciona a chave "Repository" e "EnvironmentName" com os valores corretos
           jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]' temp.json > complete-template-parameters.json
