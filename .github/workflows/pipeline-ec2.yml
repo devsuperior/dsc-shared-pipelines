@@ -23,6 +23,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: List files in workflows directory
+        run: ls -la .github/workflows
+
       - name: Setup basic environment variable
         run: .github/workflows/scripts/setup-basic-environment-variables.sh
 
