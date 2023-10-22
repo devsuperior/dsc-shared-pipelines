@@ -45,6 +45,7 @@ jobs:
 
           if [[ -z $stack_exists ]]; then
             echo "A stack $STACK_NAME nao existe. Nenhuma acao necessaria."
+            exit 0
           else
             # Obtem o ID do stack
             stack_id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackId' --output text)
