@@ -1,0 +1,56 @@
+name: Deploy EC2
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+    secrets:
+      github-token:
+        required: true
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+  deploy:
+    name: Deploy
+    steps:
+      - name: Delete previous stack if necessary.
+        env:
+          STACK_NAME: stack-${{ github.ref_name }}-${{ github.event.repository.name }}
+        run: bash .github/workflows/scripts/check-cloud-formation-stack-status-and-delete-if-necessary.sh
+
+      - name: Deploy CloudFormation stack
+        env:
+          STACK_NAME: stack-${{ github.ref_name }}-${{ github.event.repository.name }}
+        run: |
+          echo "Iniciando script de Deploy no Cloud Formation."
+
+          cloud_formation_result=$(aws cloudformation deploy \
+              --stack-name $STACK_NAME \
+              --template-file infra/template.yml \
+              --parameter-overrides file://infra/template-parameters.json \
+              --capabilities CAPABILITY_NAMED_IAM 2>&1)
+
+          echo "Resultado do pedido de deploy: $cloud_formation_result"
+
