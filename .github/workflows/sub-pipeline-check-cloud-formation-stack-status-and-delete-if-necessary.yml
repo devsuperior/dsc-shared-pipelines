@@ -48,6 +48,8 @@ jobs:
             exit 0
           else
             # Obtem o ID do stack
+            echo "Obtendo o ID da stack..."
+
             stack_id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackId' --output text)
 
             echo "ID da stack: $stack_id"
