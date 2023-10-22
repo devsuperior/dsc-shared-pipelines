@@ -65,6 +65,8 @@ jobs:
 
           echo "${{ needs.build-template-parameters.outputs.complete-template-parameters-base64 }}" | base64 -d > ${{ inputs.template-parameters-path }}
 
+          echo "Conteudo do arquivo de parametros: $(cat ${{ inputs.template-parameters-path }})"
+
           cloud_formation_result=$(aws cloudformation deploy \
               --stack-name ${{ needs.build-basic-constants.outputs.stack-name }} \
               --template-file ${{ inputs.template-path }} \
