@@ -38,16 +38,15 @@ jobs:
           echo "Verificando o status da stack: $STACK_NAME"
 
           # Verifica se a stack existe
-          stack_exists=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks' --output text 2>/dev/null)
+          cloud_formation_result=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks' --output text 2>&1)
           stack_id=""
           event=""
           status=""
 
-          echo "Resultado da verificacao: $stack_exists"
-          
-          if [[ -z $stack_exists ]]; then
-            echo "A stack $STACK_NAME nao existe. Nenhuma acao necessaria."
-            exit 0
+          echo "Resultado: $cloud_formation_result"
+
+          if [[ $cloud_formation_result == *"does not exist"* ]]; then
+            echo "A stack $STACK_NAME nao existe."
           else
             # Obtem o ID do stack
             echo "Obtendo o ID da stack..."
