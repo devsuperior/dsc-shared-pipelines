@@ -2,6 +2,16 @@ name: Setup basic environment variables
 
 on:
   workflow_call:
+  outputs:
+    environment-name:
+      description: "Nome do ambiente (dev, uat, prd)"
+      value: ${{ jobs.setup-environment-variables.outputs.output1 }}
+    repository-name:
+      description: "Nome do repositorio"
+      value: ${{ jobs.setup-environment-variables.outputs.output2 }}
+    stack-name:
+      description: "Nome da stack"
+      value: ${{ jobs.setup-environment-variables.outputs.output3 }}
 
 permissions:
   contents: read

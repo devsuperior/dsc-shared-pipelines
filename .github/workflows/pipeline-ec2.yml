@@ -23,34 +23,23 @@ permissions:
 
 jobs:
 
-  build-env-vars:
-    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml@main
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build-env-vars
-    steps:
-      - name: testando
-        run: |
-          echo "Testando"
-          echo "REPOSITORY_NAME: ${{ needs.build-env-vars.outputs.output1 }}"
-          echo "ENVIRONMENT_NAME: ${{ needs.build-env-vars.outputs.ENVIRONMENT_NAME }}"
-          echo "STACK_NAME: ${{ needs.build-env-vars.outputs.STACK_NAME }}"
+  build-basic-constants:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-constantss.yml@main
 
   build-template-parameters:
-    needs: build-env-vars
+    needs: build-basic-constants
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-build-complete-template-parameters.yml@main
     with:
       template-parameters-path: ${{ inputs.template-parameters-path }}
-      repository-name: ${{ needs.build-env-vars.outputs.REPOSITORY_NAME }}
-      environment-name: ${{ needs.build-env-vars.outputs.ENVIRONMENT_NAME }}
+      environment-name: ${{ needs.build-basic-constants.outputs.environment-name }}
+      repository-name: ${{ needs.build-basic-constants.outputs.repository-name }}
 
   verify-stack-on-cloud-formation:
-    needs: build-env-vars
+    needs: build-basic-constants
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-check-cloud-formation-stack-status-and-delete-if-necessary.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
-      stack-name: ${{ needs.build-env-vars.outputs.STACK_NAME }}
+      stack-name: ${{ needs.build-basic-constants.outputs.stack-name }}
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
@@ -71,10 +60,10 @@ jobs:
         run: |
           echo "Iniciando script de Deploy no Cloud Formation."
 
-          echo "${{ needs.build-template-parameters.outputs.COMPLETE_TEMPLATE_PARAMETERS }}" | base64 -d > ${{ inputs.template-parameters-path }}
+          echo "${{ needs.build-template-parameters.outputs.complete-template-parameters-base64 }}" | base64 -d > ${{ inputs.template-parameters-path }}
 
           cloud_formation_result=$(aws cloudformation deploy \
-              --stack-name ${{ needs.build-env-vars.outputs.STACK_NAME }} \
+              --stack-name ${{ needs.build-basic-constants.outputs.stack-name }} \
               --template-file ${{ inputs.template-path }} \
               --parameter-overrides file://${{ inputs.template-parameters-path }} \
               --capabilities CAPABILITY_NAMED_IAM 2>&1)
