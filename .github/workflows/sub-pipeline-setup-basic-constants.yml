@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       environment-name:
-        description: "Nome do ambiente (dev, uat, prd)"
+        description: "Nome do ambiente (dev, stg, prd)"
         value: ${{ jobs.setup-environment-variables.outputs.output1 }}
       repository-name:
         description: "Nome do repositorio"
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   setup-environment-variables:
-    name: Setup basic environment variables
+    name: Setup basic constants
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ steps.setup-env.outputs.ENVIRONMENT_NAME }}
@@ -32,7 +32,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             echo "ENVIRONMENT_NAME=prd" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/release-candidate" ]]; then
-            echo "ENVIRONMENT_NAME=uat" >> $GITHUB_OUTPUT
+            echo "ENVIRONMENT_NAME=stg" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "ENVIRONMENT_NAME=dev" >> $GITHUB_OUTPUT
           else
