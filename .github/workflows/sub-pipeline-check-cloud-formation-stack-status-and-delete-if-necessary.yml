@@ -33,7 +33,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Run script to build complete template parameters
+      - name: Run script to check cloud formation stack status and delete if necessary
         run: |
           echo "Verificando o status da stack: $STACK_NAME"
 
