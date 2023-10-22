@@ -7,8 +7,6 @@ on:
         required: true
         type: string
     secrets:
-      github-token:
-        required: true
       aws-access-key-id:
         required: true
       aws-secret-access-key:
