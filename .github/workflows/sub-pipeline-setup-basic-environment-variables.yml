@@ -28,3 +28,6 @@ jobs:
 
           # Repository name
           echo "REPOSITORY_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+
+          # Stack name
+          echo "STACK_NAME=stack-${{ github.ref_name }}-$REPOSITORY_NAME" >> $GITHUB_ENV"

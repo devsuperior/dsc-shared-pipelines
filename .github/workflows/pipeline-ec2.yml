@@ -52,13 +52,9 @@ jobs:
     needs: build-template-parameters
     steps:
       - name: Delete previous stack if necessary.
-        env:
-          STACK_NAME: stack-${{ github.ref_name }}-${{ github.event.repository.name }}
         run: .github/workflows/scripts/check-cloud-formation-stack-status-and-delete-if-necessary.sh
 
       - name: Deploy CloudFormation stack
-        env:
-          STACK_NAME: stack-${{ github.ref_name }}-${{ github.event.repository.name }}
         run: |
           echo "Iniciando script de Deploy no Cloud Formation."
 
