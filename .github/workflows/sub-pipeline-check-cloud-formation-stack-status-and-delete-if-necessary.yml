@@ -38,7 +38,7 @@ jobs:
           echo "Verificando o status da stack: $STACK_NAME"
 
           # Verifica se a stack existe
-          cloud_formation_result=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks' --output text 2>&1)
+          cloud_formation_result=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks' --output text 2>&1 || true)
           stack_id=""
           event=""
           status=""
