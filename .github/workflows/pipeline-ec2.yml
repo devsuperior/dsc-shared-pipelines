@@ -19,8 +19,8 @@ jobs:
   build-env-vars:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml@main
 
-  build:
-    name: Build
+  checkout-code:
+    name: Checkout code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -36,8 +36,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Build complete template-parameters.json
-        run: .github/workflows/scripts/build-complete-template-parameters.sh
+  build-template-parameters:
+    - uses: .github/workflows/scripts/build-complete-template-parameters.sh
 
   deploy:
     name: Deploy

@@ -1,0 +1,20 @@
+name: Build complete template parameters
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-complete-template-parameters:
+    name: Job Build complete template parameters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run script to build complete template parameters
+        run: |
+          # Remove a chave "Repository" e "EnvironmentName" se ela existir
+          jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' infra/template-parameters.json > temp.json
+
+          # Adiciona a chave "Repository" e "EnvironmentName" com os valores corretos
+          jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]' temp.json > complete-template-parameters.json
