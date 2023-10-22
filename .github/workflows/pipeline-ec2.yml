@@ -33,7 +33,7 @@ jobs:
       - name: testando
         run: |
           echo "Testando"
-          echo "REPOSITORY_NAME: ${{ needs.build-env-vars.outputs.REPOSITORY_NAME }}"
+          echo "REPOSITORY_NAME: ${{ needs.build-env-vars.outputs.output1 }}"
           echo "ENVIRONMENT_NAME: ${{ needs.build-env-vars.outputs.ENVIRONMENT_NAME }}"
           echo "STACK_NAME: ${{ needs.build-env-vars.outputs.STACK_NAME }}"
 
