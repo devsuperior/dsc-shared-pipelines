@@ -26,7 +26,7 @@ jobs:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml@main
 
   build-template-parameters:
-    needs: [checkout-code, build-env-vars]
+    needs: build-env-vars
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-build-complete-template-parameters.yml@main
     with:
       template-parameters-path: ${{ inputs.template-parameters-path }}
@@ -44,7 +44,7 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
 
       - name: Delete previous stack if necessary.
-        run: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-check-cloud-formation-stack-status-and-delete-if-necessary.yml
+        run: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-check-cloud-formation-stack-status-and-delete-if-necessary.yml@main
 
       - name: Deploy CloudFormation stack
         run: |
