@@ -51,15 +51,15 @@ jobs:
             # Obtem o ID do stack
             echo "Obtendo o ID da stack..."
 
-            stack_id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackId' --output text)
+            stack_id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].StackId' --output text 2>&1 || true)
 
             echo "ID da stack: $stack_id"
 
             # Obtem o evento mais recente da stack
-            event=$(aws cloudformation describe-stack-events --stack-name $stack_id --query 'StackEvents[0]' --output json)
+            event=$(aws cloudformation describe-stack-events --stack-name $stack_id --query 'StackEvents[0]' --output json 2>&1 || true)
 
             # Verifica se ha eventos na stack
-            if [[ -z $event ]]; then
+          if [[ $event == *"does not exist"* ]]; then
               echo "Nao ha eventos disponiveis para a stack $STACK_NAME."
             else
               # Obtem o status mais recente da stack
@@ -89,10 +89,10 @@ jobs:
               sleep 10s  # Aguarda 10 segundos antes de verificar o status novamente
 
               # Obtem o evento mais recente da stack
-              event=$(aws cloudformation describe-stack-events --stack-name $stack_id --query 'StackEvents[0]' --output json)
+              event=$(aws cloudformation describe-stack-events --stack-name $stack_id --query 'StackEvents[0]' --output json 2>&1 || true)
 
               # Verifica se a stack ainda existe
-              if [[ -z $event ]]; then
+              if [[ $event == *"does not exist"* ]]; then
                 echo "A stack $STACK_NAME nao existe mais. Exclusao completa."
                 exit 0
               fi
@@ -102,8 +102,7 @@ jobs:
 
               echo "Status atual da stack: $status"
             done
-
-          else
-            echo "A stack esta em um estado valido para prosseguir."
           fi
+
+          echo "A stack esta em um estado valido para prosseguir."
 
