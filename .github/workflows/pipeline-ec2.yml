@@ -48,8 +48,8 @@ jobs:
 
           cloud_formation_result=$(aws cloudformation deploy \
               --stack-name $STACK_NAME \
-              --template-file infra/template.yml \
-              --parameter-overrides file://infra/template-parameters.json \
+              --template-file template.yml \
+              --parameter-overrides file://template-parameters.json \
               --capabilities CAPABILITY_NAMED_IAM 2>&1)
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
