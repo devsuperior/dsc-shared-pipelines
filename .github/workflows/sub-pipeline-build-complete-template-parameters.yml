@@ -6,7 +6,13 @@ on:
       template-parameters-path:
         required: true
         type: string
-        
+      environment-name:
+        required: true
+        type: string
+      repository-name:
+        required: true
+        type: string
+
 permissions:
   contents: read
 
@@ -14,20 +20,23 @@ jobs:
   build-complete-template-parameters:
     name: Job Build complete template parameters
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.build.outputs.COMPLETE_TEMPLATE_PARAMETERS }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      - name: Run script to build complete template parameters
+      - id: build
+        name: Run script to build complete template parameters
         run: |
           # Remove a chave "Repository" e "EnvironmentName" se ela existir
           COMPLETE_JSON=$(jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' ${{ inputs.template-parameters-path }})
 
           # Adiciona a chave "Repository" e "EnvironmentName" com os valores corretos
-          COMPLETE_JSON=$(echo "$COMPLETE_JSON" | jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]')
+          COMPLETE_JSON=$(echo "$COMPLETE_JSON" | jq --arg repoValue "${{ inputs.repository-name }}" --arg envValue "${{ inputs.environment-name }}" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]')
 
           # Codifica o JSON em Base64
           COMPLETE_JSON_BASE64=$(echo "$COMPLETE_JSON" | base64 -w 0)
 
           # Armazena o resultado em uma variavel de ambiente
-          echo "COMPLETE_TEMPLATE_PARAMETERS=$COMPLETE_JSON_BASE64" >> $GITHUB_ENV
+          echo "COMPLETE_TEMPLATE_PARAMETERS=$COMPLETE_JSON_BASE64" >> $GITHUB_OUTPUT

@@ -3,6 +3,9 @@ name: Check cloud formation stack status and delete if necessary
 on:
   workflow_call:
     inputs:
+      stack-name:
+        required: true
+        type: string
       aws-region:
         required: true
         type: string
@@ -11,7 +14,10 @@ on:
         required: true
       aws-secret-access-key:
         required: true
-        
+
+env:
+  STACK_NAME: ${{ inputs.stack-name }}
+
 permissions:
   contents: read
 

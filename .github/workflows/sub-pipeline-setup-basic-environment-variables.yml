@@ -10,24 +10,28 @@ jobs:
   setup-environment-variables:
     name: Setup basic environment variables
     runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.setup-env.outputs.ENVIRONMENT_NAME }}
+      output2: ${{ steps.setup-env.outputs.REPOSITORY_NAME }}
+      output3: ${{ steps.setup-env.outputs.STACK_NAME }}
     steps:
-
-      - name: Setup basic environment variable
+      - id: setup-env
+        name: Setup basic environment variable
         run: |
           # Environment name
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "ENVIRONMENT_NAME=prd" >> $GITHUB_ENV
+            echo "ENVIRONMENT_NAME=prd" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/release-candidate" ]]; then
-            echo "ENVIRONMENT_NAME=uat" >> $GITHUB_ENV
+            echo "ENVIRONMENT_NAME=uat" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "ENVIRONMENT_NAME=dev" >> $GITHUB_ENV
+            echo "ENVIRONMENT_NAME=dev" >> $GITHUB_OUTPUT
           else
-            echo "Unknown branch. Not setting ENV_NAME."
+            echo "Unknown branch. Not setting ENVIRONMENT_NAME."
             exit 1
           fi
 
           # Repository name
-          echo "REPOSITORY_NAME=${{ github.event.repository.name }}" >> $GITHUB_ENV
+          echo "REPOSITORY_NAME=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
 
           # Stack name
-          echo "STACK_NAME=stack-${{ github.ref_name }}-$REPOSITORY_NAME" >> $GITHUB_ENV
+          echo "STACK_NAME=stack-${{ github.ref_name }}-${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
