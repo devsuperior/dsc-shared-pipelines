@@ -25,9 +25,10 @@ jobs:
   verify-stack-on-cloud-formation:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-check-cloud-formation-stack-status-and-delete-if-necessary.yml@main
     with:
+      aws-region: ${{ inputs.aws-region }}
+    secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
-      aws-region: ${{ inputs.aws-region }}
 
   build-env-vars:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml@main

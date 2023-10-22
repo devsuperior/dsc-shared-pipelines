@@ -3,9 +3,6 @@ name: Check cloud formation stack status and delete if necessary
 on:
   workflow_call:
     inputs:
-      template-parameters-path:
-        required: true
-        type: string
       aws-region:
         required: true
         type: string
