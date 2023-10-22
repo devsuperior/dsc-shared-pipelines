@@ -26,6 +26,17 @@ jobs:
   build-env-vars:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml@main
 
+  test:
+    runs-on: ubuntu-latest
+    needs: build-env-vars
+    steps:
+      - name: testando
+        run: |
+          echo "Testando"
+          echo "REPOSITORY_NAME: ${{ needs.build-env-vars.outputs.REPOSITORY_NAME }}"
+          echo "ENVIRONMENT_NAME: ${{ needs.build-env-vars.outputs.ENVIRONMENT_NAME }}"
+          echo "STACK_NAME: ${{ needs.build-env-vars.outputs.STACK_NAME }}"
+
   build-template-parameters:
     needs: build-env-vars
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-build-complete-template-parameters.yml@main
