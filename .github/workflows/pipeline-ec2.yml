@@ -24,7 +24,7 @@ permissions:
 jobs:
 
   build-basic-constants:
-    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-constantss.yml@main
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-constants.yml@main
 
   build-template-parameters:
     needs: build-basic-constants
