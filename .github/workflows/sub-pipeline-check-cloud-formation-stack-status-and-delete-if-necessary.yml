@@ -65,11 +65,9 @@ jobs:
 
           fi
 
-          # Verifica se o status eh "ROLLBACK_COMPLETE" ou "UPDATE_ROLLBACK_COMPLETE"
           if [[ $status == *"IN_PROGRESS" || 
                 $status == *"FAILED" || 
-                $status == "ROLLBACK_COMPLETE" || 
-                $status == "UPDATE_ROLLBACK_COMPLETE"
+                $status == "ROLLBACK_COMPLETE"
           ]]; then
             echo "A stack esta no estado $status. Entrou na condicional de espera."
 
