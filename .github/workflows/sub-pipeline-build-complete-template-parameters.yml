@@ -12,10 +12,10 @@ on:
       repository-name:
         required: true
         type: string
-  outputs:
-    complete-template-parameters-base64:
-      description: "Template parameters completo em base64"
-      value: ${{ jobs.build-complete-template-parameters.outputs.output1 }}
+    outputs:
+      complete-template-parameters-base64:
+        description: "Template parameters completo em base64"
+        value: ${{ jobs.build-complete-template-parameters.outputs.output1 }}
 
 permissions:
   contents: read
