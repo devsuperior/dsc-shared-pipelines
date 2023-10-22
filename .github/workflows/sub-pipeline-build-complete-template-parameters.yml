@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   build-complete-template-parameters:
-    name: Job Build complete template parameters
+    name: Build complete template parameters
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ steps.build.outputs.COMPLETE_TEMPLATE_PARAMETERS }}
