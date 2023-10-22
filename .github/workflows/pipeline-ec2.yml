@@ -74,3 +74,9 @@ jobs:
               --capabilities CAPABILITY_NAMED_IAM  2>&1 || true)
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
+
+          if [[ $cloud_formation_result == *"Failed"* ]]; then
+            echo "Falha na criacao da stack. Saindo..."
+            exit 1
+          fi
+
