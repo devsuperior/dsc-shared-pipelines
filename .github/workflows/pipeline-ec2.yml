@@ -37,7 +37,8 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
 
   build-template-parameters:
-    - uses: .github/workflows/scripts/build-complete-template-parameters.sh
+    needs: [checkout-code, build-env-vars]
+    uses: .github/workflows/scripts/build-complete-template-parameters.sh
 
   deploy:
     name: Deploy
