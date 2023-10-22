@@ -27,7 +27,7 @@ jobs:
         run: ls -la ${{ github.action_path }}
 
       - name: Setup basic environment variable
-        run: .github/workflows/scripts/setup-basic-environment-variables.sh
+        run: devsuperior/dsc-shared-pipelines/.github/workflows/sub-pipeline-setup-basic-environment-variables.yml
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
