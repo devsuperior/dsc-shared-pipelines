@@ -50,6 +50,8 @@ jobs:
         run: |
           echo "Iniciando script de Deploy no Cloud Formation."
 
+          echo "$COMPLETE_TEMPLATE_PARAMETERS" | base64 -d > ${{ inputs.template-parameters-path }}
+
           cloud_formation_result=$(aws cloudformation deploy \
               --stack-name $STACK_NAME \
               --template-file ${{ inputs.template-path }} \

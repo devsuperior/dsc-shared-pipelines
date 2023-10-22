@@ -25,5 +25,8 @@ jobs:
           # Adiciona a chave "Repository" e "EnvironmentName" com os valores corretos
           COMPLETE_JSON=$(echo "$COMPLETE_JSON" | jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]')
 
+          # Codifica o JSON em Base64
+          COMPLETE_JSON_BASE64=$(echo "$COMPLETE_JSON" | base64 -w 0)
+
           # Armazena o resultado em uma variavel de ambiente
-          echo "COMPLETE_TEMPLATE_PARAMETERS=$COMPLETE_JSON" >> $GITHUB_ENV
+          echo "COMPLETE_TEMPLATE_PARAMETERS=$COMPLETE_JSON_BASE64" >> $GITHUB_ENV
