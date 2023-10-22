@@ -6,6 +6,12 @@ on:
       aws-region:
         required: true
         type: string
+      template-path:
+        required: true
+        type: string
+      template-parameters-path:
+        required: true
+        type: string
     secrets:
       aws-access-key-id:
         required: true
@@ -58,8 +64,8 @@ jobs:
 
           cloud_formation_result=$(aws cloudformation deploy \
               --stack-name $STACK_NAME \
-              --template-file template.yml \
-              --parameter-overrides file://complete-template-parameters.json \
+              --template-file ${{ inputs.template-path }} \
+              --parameter-overrides file://${{ inputs.template-parameters-path }} \
               --capabilities CAPABILITY_NAMED_IAM 2>&1)
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
