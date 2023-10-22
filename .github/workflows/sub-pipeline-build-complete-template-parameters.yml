@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        
       - name: Run script to build complete template parameters
         run: |
           # Remove a chave "Repository" e "EnvironmentName" se ela existir
