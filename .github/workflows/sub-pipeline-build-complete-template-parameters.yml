@@ -15,10 +15,15 @@ jobs:
     name: Job Build complete template parameters
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Run script to build complete template parameters
         run: |
           # Remove a chave "Repository" e "EnvironmentName" se ela existir
-          jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' ${{ inputs.template-parameters-path }} > temp.json
+          COMPLETE_JSON=$(jq 'del(.[] | select(.ParameterKey == "RepositoryName" or .ParameterKey == "EnvironmentName"))' ${{ inputs.template-parameters-path }})
 
           # Adiciona a chave "Repository" e "EnvironmentName" com os valores corretos
-          jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]' temp.json > complete-template-parameters.json
+          COMPLETE_JSON=$(echo "$COMPLETE_JSON" | jq --arg repoValue "$REPOSITORY_NAME" --arg envValue "$ENVIRONMENT_NAME" '. += [{"ParameterKey": "RepositoryName", "ParameterValue": $repoValue}, {"ParameterKey": "EnvironmentName", "ParameterValue": $envValue}]')
+
+          # Armazena o resultado em uma variavel de ambiente
+          echo "COMPLETE_TEMPLATE_PARAMETERS=$COMPLETE_JSON" >> $GITHUB_ENV
