@@ -43,6 +43,8 @@ jobs:
           event=""
           status=""
 
+          echo "Resultado da verificacao: $stack_exists"
+          
           if [[ -z $stack_exists ]]; then
             echo "A stack $STACK_NAME nao existe. Nenhuma acao necessaria."
             exit 0
