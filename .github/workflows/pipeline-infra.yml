@@ -75,7 +75,9 @@ jobs:
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
 
-          if [[ $cloud_formation_result == *"Failed"* ]]; then
+          cloud_formation_result=$(echo "$cloud_formation_result" | tr 'A-Z' 'a-z')
+
+          if [[ $cloud_formation_result == *"failed"* || $cloud_formation_result == *"error"* ]]; then
             echo "Falha na criacao da stack. Saindo..."
             exit 1
           fi
