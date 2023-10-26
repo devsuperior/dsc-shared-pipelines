@@ -68,6 +68,7 @@ jobs:
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
   force-deploy-ecs-task-definition:
+    needs: [infra, generate-basic-constants]
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/force-deploy-ecs-task-definition.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
