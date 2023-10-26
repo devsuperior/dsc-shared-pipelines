@@ -28,7 +28,8 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  force-deploy:
+    name: Force deploy ECS task definition
     runs-on: ubuntu-latest
     
     steps:
