@@ -26,6 +26,10 @@ on:
         required: true
       aws-secret-access-key:
         required: true
+      sonar-token:
+        required: true
+      sonar-host-url:
+        required: true
 
 permissions:
   contents: read
@@ -43,6 +47,9 @@ jobs:
     with:
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
       check-quality-gate: false
+    secrets:
+      sonar-token: ${{ secrets.sonar-token }}
+      sonar-host-url: ${{ secrets.sonar-host-url }}
 
   build-push-docker-image:
     needs: [sonar-analysis, generate-basic-constants]

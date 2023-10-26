@@ -10,6 +10,11 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      sonar-token:
+        required: true
+      sonar-host-url:
+        required: true
 
 jobs:
   analyze:
@@ -36,8 +41,8 @@ jobs:
             -Dsonar.test=src/test/
             -Dsonar.java.binaries=build/classes/            
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
+          SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
 
       - name: SonarQube Quality Gate check
         if: ${{ inputs.check-quality-gate }}

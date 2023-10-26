@@ -9,6 +9,10 @@ on:
     secrets:
       github-token:
         required: true
+      sonar-token:
+        required: true
+      sonar-host-url:
+        required: true
 
 env:
   PROJECT_KEY: ${{ inputs.repository-name }}
@@ -25,7 +29,10 @@ jobs:
       sonar-token: ${{ secrets.sonar-token }}
       sonar-host-url: ${{ secrets.sonar-host-url }}
       check-quality-gate: false
-
+    secrets:
+      sonar-token: ${{ secrets.sonar-token }}
+      sonar-host-url: ${{ secrets.sonar-host-url }}
+      
   comment:
     needs: test
     name: Check Quality Gate and Comment PR
