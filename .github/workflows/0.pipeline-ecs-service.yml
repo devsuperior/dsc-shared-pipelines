@@ -21,6 +21,10 @@ on:
       cluster-name:
         required: true
         type: string
+      check-quality-gate:
+        required: false
+        type: boolean
+        default: true
     secrets:
       aws-access-key-id:
         required: true
@@ -46,7 +50,7 @@ jobs:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
     with:
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
-      check-quality-gate: false
+      check-quality-gate: ${{ inputs.check-quality-gate }}
     secrets:
       sonar-token: ${{ secrets.sonar-token }}
       sonar-host-url: ${{ secrets.sonar-host-url }}
