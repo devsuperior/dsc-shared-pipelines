@@ -71,9 +71,8 @@ jobs:
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/force-deploy-ecs-task-definition.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
-      env-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
-      service-name: ${{ inputs.service-name }}
-      cluster-name: ${{ inputs.cluster-name }}
+      service-name: ${{ needs.generate-basic-constants.outputs.environment-name }}-${{ inputs.service-name }}
+      cluster-name: ${{ needs.generate-basic-constants.outputs.environment-name }}-${{ inputs.cluster-name }}
       stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
       cloud-formation-result: ${{ needs.infra.outputs.cloud-formation-result }}
     secrets:

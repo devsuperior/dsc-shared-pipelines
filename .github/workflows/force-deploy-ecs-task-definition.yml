@@ -9,9 +9,6 @@ on:
       cloud-formation-result:
         required: true
         type: string
-      env-name:
-        required: true
-        type: string
       stack-name:
         required: true
         type: string
