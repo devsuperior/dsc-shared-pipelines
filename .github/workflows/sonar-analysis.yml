@@ -42,7 +42,7 @@ jobs:
       - name: SonarQube Quality Gate check
         if: ${{ inputs.check-quality-gate }}
         id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@v1
+        uses: sonarsource/sonarqube-quality-gate-action@v1.1.0
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.sonar-token }}
