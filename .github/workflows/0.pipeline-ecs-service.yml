@@ -1,0 +1,81 @@
+name: Deploy ECS Service using AWS CloudFormation
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      template-path:
+        required: true
+        type: string
+      template-parameters-path:
+        required: true
+        type: string
+      dockerfile-path:
+        required: true
+        type: string
+      service-name:
+        required: true
+        type: string
+      cluster-name:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  generate-basic-constants:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/generate-basic-constants.yml@main
+
+  build-java-gradle:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/build-java-gradle.yml@main
+
+  sonar-analysis:
+    needs: [build-java-gradle, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
+    with:
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+      check-quality-gate: false
+
+  build-push-docker-image:
+    needs: [sonar-analysis, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/build-push-docker-image.yml@main
+    with:
+      environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+      aws-region: ${{ inputs.aws-region }}
+      dockerfile-path: ${{ inputs.dockerfile-path }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+  infra:
+    needs: build-push-docker-image
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/pipeline-infra.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      template-path: ${{ inputs.template-path }}
+      template-parameters-path: ${{ inputs.template-parameters-path }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+  force-deploy-ecs-task-definition:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/force-deploy-ecs-task-definition.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      env-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      service-name: ${{ inputs.service-name }}
+      cluster-name: ${{ inputs.cluster-name }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
+      cloud-formation-result: ${{ needs.infra.outputs.cloud-formation-result }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}      

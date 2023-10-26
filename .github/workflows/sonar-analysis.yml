@@ -1,0 +1,53 @@
+name: SonarQube Analysis
+
+on:
+  workflow_call:
+    inputs:
+      repository-name:
+        required: true
+        type: string
+      check-quality-gate:
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  analyze:
+    name: Analyze with Sonar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/
+
+      - name: SonarQube Code Scan
+        uses: sonarsource/sonarqube-scan-action@v1
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${{ inputs.repository-name }}
+            -Dsonar.sources=src/main/
+            -Dsonar.test=src/test/
+            -Dsonar.java.binaries=build/classes/            
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: SonarQube Quality Gate check
+        if: ${{ inputs.check-quality-gate }}
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.sonar-token }}
+          SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
+
+      - name: Sonar Quality Gate Result
+        if: ${{ inputs.check-quality-gate }}
+        run: echo "Resultado do Quality Gate -> ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"

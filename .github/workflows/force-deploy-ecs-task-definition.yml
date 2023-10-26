@@ -1,0 +1,66 @@
+name: Deploy on AWS CloudFormation
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      cloud-formation-result:
+        required: true
+        type: string
+      env-name:
+        required: true
+        type: string
+      stack-name:
+        required: true
+        type: string
+      service-name:
+        required: true
+        type: string
+      cluster-name:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Deploy CloudFormation stack
+        id: deploy_script
+        env:
+          CLUSTER_NAME: ${{ inputs.cluster-name }}
+          SVC_NAME: ${{ inputs.service-name }}
+        run: |
+          if [[ "${{ inputs.cloud-formation-result }}" == *"No changes to deploy"* ]]; then
+            echo "Não há alterações a serem feitas na stack. Executando comando adicional para forçar o deployment do serviço ECS e capturar nova imagem Docker..."
+
+            aws ecs update-service --cluster $CLUSTER_NAME --service $SVC_NAME --force-new-deployment
+
+            echo "Iniciando espera até que o deployment tenha sido concluído com sucesso."
+
+            aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SVC_NAME
+
+            echo "Deployment concluído com sucesso."
+          else
+            echo "Não foi necessário forçar o deployment do serviço ECS."
+          fi

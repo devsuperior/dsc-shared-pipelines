@@ -1,0 +1,78 @@
+name: Build Docker image and push to ECR
+
+on:
+  workflow_call:
+    inputs:
+      environment-name:
+        required: true
+        type: string
+      repository-name:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+      dockerfile-path:
+        required: true
+        type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  ECR_REPOSITORY: ${{ inputs.environment-name }}-${{ inputs.repository-name }}
+
+jobs:
+  build-push-ecr:
+    name: Build imagem and push to ECR
+    runs-on: ubuntu-latest
+
+    steps:
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Create ECR repo if not exists
+        id: create-ecr
+        run: aws ecr create-repository --repository-name ${{ env.ECR_REPOSITORY }} || true
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        env:
+          COMPLETE_ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        with:
+          context: .
+          file: ${{ inputs.dockerfile-path  }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.COMPLETE_ECR_REGISTRY }}:${{ env.IMAGE_TAG }},${{ env.COMPLETE_ECR_REGISTRY }}:latest
