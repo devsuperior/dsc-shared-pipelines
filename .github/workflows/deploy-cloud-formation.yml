@@ -15,6 +15,9 @@ on:
       stack-name:
         required: true
         type: string
+      complete-template-parameters-base64:
+        required: true
+        type: string
     secrets:
       aws-access-key-id:
         required: true
