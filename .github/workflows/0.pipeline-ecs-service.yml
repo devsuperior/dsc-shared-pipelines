@@ -58,7 +58,7 @@ jobs:
 
   infra:
     needs: build-push-docker-image
-    uses: devsuperior/dsc-shared-pipelines/.github/workflows/pipeline-infra.yml@main
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/0.pipeline-infra.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
       template-path: ${{ inputs.template-path }}
