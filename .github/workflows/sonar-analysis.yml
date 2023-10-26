@@ -36,7 +36,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=${{ inputs.repository-name }}
+            -Dsonar.projectKey=${{ github.ref }}-${{ inputs.repository-name }}
             -Dsonar.sources=src/main/
             -Dsonar.test=src/test/
             -Dsonar.java.binaries=build/classes/            
