@@ -1,4 +1,4 @@
-name: Setup basic environment variables
+name: Setup basic constants
 
 on:
   workflow_call:

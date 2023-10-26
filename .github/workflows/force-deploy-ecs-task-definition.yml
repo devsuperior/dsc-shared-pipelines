@@ -1,4 +1,4 @@
-name: Deploy on AWS CloudFormation
+name: Force deploy ECS task definition
 
 on:
   workflow_call:

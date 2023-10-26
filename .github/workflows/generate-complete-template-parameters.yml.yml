@@ -1,4 +1,4 @@
-name: Build complete template parameters
+name: Generate complete template parameters
 
 on:
   workflow_call:
