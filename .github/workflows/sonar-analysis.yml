@@ -53,6 +53,3 @@ jobs:
           SONAR_TOKEN: ${{ secrets.sonar-token }}
           SONAR_HOST_URL: ${{ secrets.sonar-host-url }}
 
-      - name: Sonar Quality Gate Result
-        if: ${{ inputs.check-quality-gate }}
-        run: echo "Resultado do Quality Gate -> ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
