@@ -33,6 +33,7 @@ permissions:
 
 jobs:
   deploy:
+    name: Submit to AWS CloudFormation
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ steps.deploy-script.outputs.cloud-formation-result }}
