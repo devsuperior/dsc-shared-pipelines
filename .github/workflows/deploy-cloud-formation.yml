@@ -72,4 +72,4 @@ jobs:
             exit 1
           fi
 
-          echo "cloud-formation-result=$cloud_formation_result" >> $GITHUB_OUTPUT
+          echo "cloud-formation-result=$(echo $cloud_formation_result | tr '\n' ' ')" >> $GITHUB_OUTPUT
