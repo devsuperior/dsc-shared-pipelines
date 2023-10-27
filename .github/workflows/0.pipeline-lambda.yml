@@ -13,9 +13,6 @@ on:
         required: false
         type: string
         default: ""
-      function-name:
-        required: true
-        type: string
       architecture:
         required: true
         type: string
