@@ -43,13 +43,13 @@ jobs:
         if: ${{ inputs.native-image == true }}
         run: | 
           ${{ inputs.docker-build-script-file-path }}
-          sam build --template ${{ inputs.template-path }} --base-dir . --use-container --build-image al2-graalvm:gradle --skip-pull-image --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName={{ inputs.repository-name }}
+          sam build --template ${{ inputs.template-path }} --base-dir . --use-container --build-image al2-graalvm:gradle --skip-pull-image --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName=${{ inputs.repository-name }}
           
       - name: Build Conventional
         if: ${{ inputs.native-image == false }}
         run: | 
           ${{ inputs.docker-build-script-file-path }}
-          sam build --template ${{ inputs.template-path }} --base-dir . --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName={{ inputs.repository-name }}
+          sam build --template ${{ inputs.template-path }} --base-dir . --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName=${{ inputs.repository-name }}
           
       - name: Archive build artifacts
         uses: actions/upload-artifact@v3
