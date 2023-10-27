@@ -1,4 +1,4 @@
-name: Force deploy ECS task definition
+name: Deploy SAM
 
 on:
   workflow_call:

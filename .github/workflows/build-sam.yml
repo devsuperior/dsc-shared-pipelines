@@ -1,4 +1,4 @@
-name: Build SAM
+name: Build SAM with makefile (Native and Normal)
 
 on:
   workflow_call:
