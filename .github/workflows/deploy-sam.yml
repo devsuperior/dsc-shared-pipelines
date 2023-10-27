@@ -62,4 +62,4 @@ jobs:
           --region ${{ inputs.aws-region }} \
           --capabilities CAPABILITY_IAM \
           --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName=${{ inputs.repository-name }} \
-          --stack-name stack-${{ inputs.stack-name }}
+          --stack-name ${{ inputs.stack-name }}
