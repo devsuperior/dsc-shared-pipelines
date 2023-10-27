@@ -67,26 +67,46 @@ jobs:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
-  infra:
-    needs: build-push-docker-image
-    uses: devsuperior/dsc-shared-pipelines/.github/workflows/0.pipeline-infra.yml@main
+  generate-complete-template-parameters:
+    needs: generate-basic-constants
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/generate-complete-template-parameters.yml@main
+    with:
+      template-parameters-path: ${{ inputs.template-parameters-path }}
+      environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+
+  check-delete-cloud-formation-status:
+    needs: generate-basic-constants
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-delete-cloud-formation-status.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+  deploy-cloud-formation:
+    needs: [check-delete-cloud-formation-status, generate-complete-template-parameters, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/deploy-cloud-formation.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
       template-path: ${{ inputs.template-path }}
       template-parameters-path: ${{ inputs.template-parameters-path }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
+      complete-template-parameters-base64: ${{ needs.generate-complete-template-parameters.outputs.complete-template-parameters-base64 }}
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
   force-deploy-ecs-task-definition:
-    needs: [infra, generate-basic-constants]
+    needs: [deploy-cloud-formation, generate-basic-constants]
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/force-deploy-ecs-task-definition.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
       service-name: ${{ needs.generate-basic-constants.outputs.environment-name }}-${{ inputs.service-name }}
       cluster-name: ${{ needs.generate-basic-constants.outputs.environment-name }}-${{ inputs.cluster-name }}
       stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
-      cloud-formation-result: ${{ needs.infra.outputs.cloud-formation-result }}
+      cloud-formation-result: ${{ needs.deploy-cloud-formation.outputs.cloud-formation-result }}
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}      
