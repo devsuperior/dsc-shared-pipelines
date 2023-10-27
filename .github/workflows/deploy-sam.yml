@@ -37,7 +37,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-sam-artifacts
-          path: /
+          path: ./
 
       - name: Set up SAM
         uses: aws-actions/setup-sam@v2
