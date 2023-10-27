@@ -1,0 +1,58 @@
+name: Build SAM
+
+on:
+  workflow_call:
+    inputs:
+      environment-name:
+        required: true
+        type: string
+      repository-name:
+        required: true
+        type: string
+      template-path:
+        required: true
+        type: string
+      architecture:
+        required: true
+        type: string
+      docker-build-script-file-path:
+        required: false
+        type: string
+        default: ""
+      native-image:
+        required: true
+        type: boolean
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Set up SAM
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build Native with Docker image
+        if: ${{ inputs.native-image == true }}
+        run: | 
+          ${{ inputs.docker-build-script-file-path }}
+          sam build --template ${{ inputs.template-path }} --base-dir . --use-container --build-image al2-graalvm:gradle --skip-pull-image --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName={{ inputs.repository-name }}
+          
+      - name: Build Conventional
+        if: ${{ inputs.native-image == false }}
+        run: | 
+          ${{ inputs.docker-build-script-file-path }}
+          sam build --template ${{ inputs.template-path }} --base-dir . --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName={{ inputs.repository-name }}
+          
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-sam-artifacts
+          path: /

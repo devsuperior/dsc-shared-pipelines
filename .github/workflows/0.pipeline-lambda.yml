@@ -1,0 +1,91 @@
+name: Deploy Lambda using AWS CloudFormation
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      template-path:
+        required: true
+        type: string
+      docker-build-script-file-path:
+        required: false
+        type: string
+        default: ""
+      function-name:
+        required: true
+        type: string
+      architecture:
+        required: true
+        type: string
+      check-quality-gate:
+        required: false
+        type: boolean
+        default: true
+      native-image:
+        required: true
+        type: boolean
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      sonar-token:
+        required: true
+      sonar-host-url:
+        required: true
+  
+permissions:
+  contents: read
+
+jobs:
+  generate-basic-constants:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/generate-basic-constants.yml@main
+
+  build-java-gradle:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/build-java-gradle.yml@main
+
+  build-sam:
+    needs: generate-basic-constants
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/build-sam.yml@main
+    with:
+      environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+      template-path: ${{ inputs.template-path }}
+      docker-build-script-file-path: ${{ inputs.docker-build-script-file-path }}
+      architecture: ${{ inputs.architecture }}
+      native-image: ${{ inputs.native-image }}
+
+  sonar-analysis:
+    needs: [build-java-gradle, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
+    with:
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+      check-quality-gate: ${{ inputs.check-quality-gate }}
+    secrets:
+      sonar-token: ${{ secrets.sonar-token }}
+      sonar-host-url: ${{ secrets.sonar-host-url }}
+
+  check-delete-cloud-formation-status:
+    needs: generate-basic-constants
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-delete-cloud-formation-status.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
+  deploy-sam:
+    needs: [check-delete-cloud-formation-status, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/deploy-sam.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}      
+      architecture: ${{ inputs.architecture }}      
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}      

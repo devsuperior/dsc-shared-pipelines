@@ -1,0 +1,65 @@
+name: Force deploy ECS task definition
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      environment-name:
+        required: true
+        type: string
+      stack-name:
+        required: true
+        type: string
+      repository-name:
+        required: true
+        type: string
+      architecture:
+        required: true
+        type: string        
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  force-deploy:
+    name: Force deploy ECS task definition
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-sam-artifacts
+          path: /
+
+      - name: Set up SAM
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Deploy CloudFormation stack
+        id: deploy_script
+      - run: |
+          sam deploy \
+          --no-confirm-changeset \
+          --force-upload \
+          --no-fail-on-empty-changeset \
+          --resolve-s3 \
+          --region ${{ inputs.aws-region }} \
+          --capabilities CAPABILITY_IAM \
+          --parameter-overrides Architecture=${{ inputs.architecture }} RepositoryName={{ inputs.repository-name }} \
+          --stack-name stack-${{ inputs.stack-name }}
