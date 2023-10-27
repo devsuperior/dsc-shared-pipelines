@@ -28,8 +28,8 @@ permissions:
   contents: read
 
 jobs:
-  force-deploy:
-    name: Force deploy ECS task definition
+  deploy-sam:
+    name: Deploy With SAM
     runs-on: ubuntu-latest
     
     steps:

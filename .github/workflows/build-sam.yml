@@ -25,7 +25,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build SAM
     runs-on: ubuntu-latest
 
     steps:

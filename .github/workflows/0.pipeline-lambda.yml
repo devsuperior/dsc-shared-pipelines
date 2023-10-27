@@ -65,7 +65,7 @@ jobs:
       sonar-host-url: ${{ secrets.sonar-host-url }}
 
   check-delete-cloud-formation-status:
-    needs: generate-basic-constants
+    needs: [generate-basic-constants, sonar-analysis]
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-delete-cloud-formation-status.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
