@@ -20,7 +20,7 @@ on:
     outputs:
       cloud-formation-result:
         description: "Resultado da tentativa de deploy CloudFormation"
-        value: ${{ jobs.deploy-cloud-formation.outputs.deploy-cloud-formation }}
+        value: ${{ jobs.deploy-cloud-formation.outputs.output1 }}
 
 permissions:
   contents: read
@@ -60,5 +60,7 @@ jobs:
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+    outputs:
+      output1: ${{ outputs.cloud-formation-result }}
     
 
