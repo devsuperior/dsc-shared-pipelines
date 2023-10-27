@@ -53,7 +53,7 @@ jobs:
 
       - name: Deploy CloudFormation stack
         id: deploy_script
-      - run: |
+        run: |
           sam deploy \
           --no-confirm-changeset \
           --force-upload \
