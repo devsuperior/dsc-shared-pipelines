@@ -51,7 +51,7 @@ graph TD
     B --> C[sonar-analysis]
     C --> D[build-push-docker-image]
     A --> E[generate-complete-template-parameters]
-    A --> F[check-delete-cloud-formation-status]
+    D --> F[check-delete-cloud-formation-status]
     E --> G[deploy-cloud-formation]
     F --> G
     G --> H[force-deploy-ecs-task-definition]
