@@ -15,7 +15,7 @@ Para representar os Workflows foram feitos diagramas que podem ser conferidos ab
 | :exclamation:  Nos repositórios de projeto é mandatório invocar apenas os Workflows do tipo Pipeline, que são identificados pelo prefixo do yml: `0.pipeline`.   |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-Abaixo a especificação de cada um dos Pipelines:
+Abaixo a especificação de cada um dos Pipelines.
 
 ## Pipeline de Deploy de Infras no Geral
 
@@ -33,6 +33,15 @@ graph TD
     style F1 fill:#ff9933, color:black
     style G1 fill:#cc66cc, color:black
 ```
+
+O objetivo desse pipeline é realizar o deploy de qualquer infra via AWS CloudFormation que não necessite de um "step especial" de build a não ser provisionar os recursos declarados no `template.yml` do repositório chamador.
+
+Esse repositório também precisa do `template-parameters.json` como argumento e injeta nele duas propriedades:
+
+- RepositoryName: nome do repositório chamador.
+- EnvironmentName: nome do ambiente de acordo com a branch do repositório chamador (develop: dev, release-candidate: stg, main: prd).
+
+[Clique aqui para acessar o pipeline](./.github/workflows/0.pipeline-infra.yml).
 
 ## Pipeline de Deploy de Serviços ECS 
 
