@@ -141,3 +141,5 @@ Após abrir um "PR" para as branch reservadas o pipeline se inicia e como result
 ![Comentário no Pull Request](assets/images/pull-request-comment.png)
 
 Baseado no resultado pode-se tomar a decisão de aprovar ou não o Pull Request.
+
+[Clique aqui para acessar o pipeline](./.github/workflows/0.pipeline-pull-request.yml).
