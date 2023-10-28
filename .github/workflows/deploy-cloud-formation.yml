@@ -64,7 +64,7 @@ jobs:
               --capabilities CAPABILITY_NAMED_IAM  2>&1 || true)        
 
           cloud_formation_result=$(echo "$cloud_formation_result" | tr 'A-Z' 'a-z')
-          cloud-formation-result=$(echo $cloud_formation_result | tr '\n' ' ')
+          cloud_formation_result=$(echo $cloud_formation_result | tr '\n' ' ')
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
 
@@ -73,4 +73,4 @@ jobs:
             exit 1
           fi
 
-          echo "cloud-formation-result=cloud-formation-result" >> $GITHUB_OUTPUT
+          echo "cloud-formation-result=cloud_formation_result" >> $GITHUB_OUTPUT
