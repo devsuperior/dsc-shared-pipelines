@@ -36,8 +36,7 @@ graph TD
 
 O objetivo desse pipeline é realizar o deploy de qualquer infra via AWS CloudFormation que não necessite de um "step especial" de build a não ser provisionar os recursos declarados no `template.yml` do repositório chamador.
 
-Esse repositório também precisa do `template-parameters.json` como argumento e injeta nele duas propriedades:
-
+Esse pipeline também precisa do `template-parameters.json` como argumento e injeta nele duas propriedades:
 - RepositoryName: nome do repositório chamador.
 - EnvironmentName: nome do ambiente de acordo com a branch do repositório chamador (develop: dev, release-candidate: stg, main: prd).
 
@@ -66,6 +65,18 @@ graph TD
     style G fill:#cc66cc, color:black
 
 ```
+
+O objetivo desse pipeline é realizar o deploy de microservices, ou qualquer outro tipo de serviço orquestrado pelo AWS Elastic Container Service via AWS CloudFormation.
+
+**Os serviços que utilizam essa pipeline devem obrigatoriamente utilizar Java 17, Gradle e Docker.**
+
+Esse pipeline faz o build com Java 17 e Gradle, submete o código para análise do Sonar, cria uma nova imagem Docker no AWS Elastic Container Registry, tenta realizar o deploy via AWS Cloudformation, mas caso não exista mudanças no `template.yml` força um novo deployment com a imagem latest versionada no AWS Elastic Container Registry. 
+
+Esse pipeline também precisa do `template-parameters.json` como argumento e injeta nele duas propriedades:
+- RepositoryName: nome do repositório chamador.
+- EnvironmentName: nome do ambiente de acordo com a branch do repositório chamador (develop: dev, release-candidate: stg, main: prd).
+
+[Clique aqui para acessar o pipeline](./.github/workflows/0.pipeline-ecs-service.yml).
 
 ## Pipeline de Deploy de Lambdas Java
 
