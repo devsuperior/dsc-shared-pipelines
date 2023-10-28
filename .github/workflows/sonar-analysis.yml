@@ -10,6 +10,10 @@ on:
         required: false
         type: boolean
         default: true
+      execute-sonar-analysis:
+        required: false
+        type: boolean
+        default: true
     secrets:
       sonar-token:
         required: true
@@ -32,6 +36,7 @@ jobs:
           path: build/
 
       - name: SonarQube Code Scan
+        if: ${{ inputs.execute-sonar-analysis }}
         uses: sonarsource/sonarqube-scan-action@v1
         with:
           projectBaseDir: .

@@ -60,11 +60,11 @@ jobs:
 
   sonar-analysis:
     needs: [build-java-gradle, generate-basic-constants]
-    if: ${{ inputs.execute-sonar-analysis }}
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
     with:
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
       check-quality-gate: ${{ inputs.check-quality-gate }}
+      execute-sonar-analysis: ${{ inputs.execute-sonar-analysis }}
     secrets:
       sonar-token: ${{ secrets.sonar-token }}
       sonar-host-url: ${{ secrets.sonar-host-url }}
