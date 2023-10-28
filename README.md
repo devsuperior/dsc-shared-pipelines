@@ -99,6 +99,25 @@ graph TD
 
 ```
 
+O objetivo desse pipeline é realizar o deploy de microservices no formato AWS Lambda com tecnologia Java 17 ou GraalVM nativo via AWS SAM.
+
+**Para AWS Lambda Convencional, os serviços que utilizam essa pipeline devem obrigatoriamente utilizar Java 17, Gradle.**
+**Para AWS Lambda Imagem Nativa, os serviços que utilizam essa pipeline devem obrigatoriamente a imagem Docker oficial da AWS para Build com GraalVM.**
+
+Esse pipeline utiliza o AWS SAM como template, semelhante ao AWS Cloudformation mas possui facilitadores para build e deploy. Antes de se integrar com esse pipeline certifique-se que o projeto está configurado corretamente com AWS SAM.
+
+Esse pipeline faz o build com Java 17 e Gradle, submete o código para análise do Sonar, faz o build com AWS SAM, tenta realizar o deploy com AWS SAM, mas caso não exista mudanças no `template.yml` força um novo deployment do lambda.
+
+Os lambdas ditos como "Convencionais" são habilitados automaticamente no SnapStart da AWS Lambda.
+
+Todos os lambdas quando publicados recebem uma tag de invocação chamada "target" que aponta pra última versão.
+
+Esse pipeline NÃO precisa do `template-parameters.json` como argumento ele injeta diretamente no `template.yml` duas propriedades:
+- RepositoryName: nome do repositório chamador.
+- EnvironmentName: nome do ambiente de acordo com a branch do repositório chamador (develop: dev, release-candidate: stg, main: prd).
+
+[Clique aqui para acessar o pipeline](./.github/workflows/0.pipeline-lambda.yml).
+
 ## Pipeline de Verificação de Pull Request no Sonar
 
 ```mermaid
