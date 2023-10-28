@@ -10,7 +10,7 @@ No projeto [dscommerce](https://github.com/search?q=topic%3Adscommerce+org%3Adev
 
 Em um **Pipeline** há uma coordenação/orquestração de Workflows que cumprem o objetivo do pipeline.
 
-Para representar os Workflows foram feitos diagramas que podem ser conferidos abaixo, um Workflow que foi reutilizado pode ser facilmente identificado através de seu nome e cor, por exemplo, se o Workflow de integração com o Sonar se chama `sonar-analysis` e ele tiver sido reaproveitado em outro Pipeline, ele terá esse mesmo nome em todos os pipes e a mesma cor, por exemplo, azul.
+Para representar os Workflows foram feitos diagramas que podem ser conferidos abaixo, **um Workflow que foi reutilizado pode ser facilmente identificado através de seu nome e cor**, por exemplo, se o Workflow de integração com o Sonar se chama `sonar-analysis` e ele tiver sido reaproveitado em outro Pipeline, ele terá esse mesmo nome em todos os pipes e a mesma cor, por exemplo, azul.
 
 | :exclamation:  Nos repositórios de projeto é mandatório invocar apenas os Workflows do tipo Pipeline, que são identificados pelo prefixo do yml: `0.pipeline`.   |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------|
