@@ -61,11 +61,11 @@ jobs:
               --stack-name ${{ inputs.stack-name }} \
               --template-file ${{ inputs.template-path }} \
               --parameter-overrides file://${{ inputs.template-parameters-path }} \
-              --capabilities CAPABILITY_NAMED_IAM  2>&1 || true)
-
-          echo "Resultado do pedido de deploy: $cloud_formation_result"
+              --capabilities CAPABILITY_NAMED_IAM  2>&1 || true)        
 
           cloud_formation_result=$(echo "$cloud_formation_result" | tr 'A-Z' 'a-z')
+
+          echo "Resultado do pedido de deploy: $cloud_formation_result"
 
           if [[ ! $cloud_formation_result == *"Successfully created/updated stack"* || ! $cloud_formation_result == *"No changes to deploy"* ]]; then
             echo "Falha na criacao da stack. Saindo..."
