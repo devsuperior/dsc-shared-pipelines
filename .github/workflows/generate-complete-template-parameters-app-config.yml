@@ -35,7 +35,7 @@ jobs:
         run: |
           # Verifica se o arquivo já existe se não cria um novo
           if [ ! -f ${{ inputs.template-parameters-path }} ]; then
-            echo "{}" > ${{ inputs.template-parameters-path }}
+            echo "[]" > ${{ inputs.template-parameters-path }}
           fi
 
           # Remove a chave "Repository" e "EnvironmentName" se ela existir
