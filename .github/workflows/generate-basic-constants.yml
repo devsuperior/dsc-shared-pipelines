@@ -35,6 +35,8 @@ jobs:
             echo "ENVIRONMENT_NAME=stg" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
             echo "ENVIRONMENT_NAME=dev" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/config" ]]; then
+            echo "ENVIRONMENT_NAME=config" >> $GITHUB_OUTPUT
           else
             echo "Unknown branch. Not setting ENVIRONMENT_NAME."
             exit 1
