@@ -131,3 +131,13 @@ graph TD
     style B fill:#3333ff, color:black
 
 ```
+
+O objetivo desse pipeline é realizar a análise do projeto antes que o commit merge seja realizado (etapa de Pull Request) para uma das branchs de destino reservadas (develop, release-candidate, main).
+
+Esse pipeline é aplicável apenas à microservices que sejam possíveis de construir usando Java 17 e Gradle.
+
+Após abrir um "PR" para as branch reservadas o pipeline se inicia e como resultado é adicionado um novo comentário ao Pull Request semelhante a esse abaixo:
+
+![Comentário no Pull Request](assets/images/pull-request-comment.png)
+
+Baseado no resultado pode-se tomar a decisão de aprovar ou não o Pull Request.
