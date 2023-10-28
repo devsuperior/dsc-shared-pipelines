@@ -25,6 +25,10 @@ on:
         required: false
         type: boolean
         default: true
+      execute-sonar-analysis:
+        required: false
+        type: boolean
+        default: true
     secrets:
       aws-access-key-id:
         required: true
@@ -47,6 +51,7 @@ jobs:
 
   sonar-analysis:
     needs: [build-java-gradle, generate-basic-constants]
+    if: ${{ inputs.execute-sonar-analysis }}
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
     with:
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
