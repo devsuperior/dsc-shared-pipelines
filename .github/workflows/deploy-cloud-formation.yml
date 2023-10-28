@@ -68,7 +68,7 @@ jobs:
 
           echo "Resultado do pedido de deploy: $cloud_formation_result"
 
-          if [[ ! $cloud_formation_result == *"successfully created/updated stack"* || ! $cloud_formation_result == *"no changes to deploy"* ]]; then
+          if [[ ! $cloud_formation_result == *"successfully created/updated stack"* && ! $cloud_formation_result == *"no changes to deploy"* ]]; then
             echo "Falha na criacao da stack. Saindo..."
             exit 1
           fi
