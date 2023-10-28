@@ -1,8 +1,22 @@
 # dsc-shared-pipelines
-Repositório de Workflows
 
+Repositório de Workflows (Pipelines/Esteiras) de CI/CD que são usados no projeto [dscommerce](https://github.com/search?q=topic%3Adscommerce+org%3Adevsuperior&type=Repositories).
 
-## Template de Deploy de Infras no Geral
+Esses Workflows utilizam do GitHub Actions como meio para executar as integrações necessárias para o deploy de aplicações e infraestrutura na AWS.
+
+Dentro do GitHub Workflows existe o recurso chamado `Reusable Workflows` ao qual permite encadear e reaproveitar workflows. É possível enviar e receber parâmetros semelhante a uma função códificada em uma linguagem qualquer.
+
+No projeto [dscommerce](https://github.com/search?q=topic%3Adscommerce+org%3Adevsuperior&type=Repositories) convencionamos que a primeira etapa do Workflow se chama **Pipeline**. Essa primeira etapa é responsável por iniciar um fluxo com um objetivo claro, deploy de infraestrutura, deploy de lambda, dentre outros. 
+
+Em um **Pipeline** há uma coordenação/orquestração de Workflows que cumprem o objetivo do pipeline.
+
+Para representar os Workflows foram feitos diagramas que podem ser conferidos abaixo, um Workflow que foi reutilizado pode ser facilmente identificado através de seu nome e cor, por exemplo, se o Workflow de integração com o Sonar se chama `sonar-analysis` e ele tiver sido reaproveitado em outro Pipeline, ele terá esse mesmo nome em todos os pipes e a mesma cor, por exemplo, azul.
+
+Nos repositórios de projeto é mandatório invocar apenas os Workflows do tipo Pipeline, que são identificados pelo prefixo do yml: `0.pipeline`.
+
+Abaixo a especificação de cada um dos Pipelines:
+
+## Pipeline de Deploy de Infras no Geral
 
 ```mermaid
 graph TD
@@ -19,7 +33,7 @@ graph TD
     style G1 fill:#cc66cc, color:black
 ```
 
-## Template de Deploy de Serviços ECS 
+## Pipeline de Deploy de Serviços ECS 
 
 ```mermaid
 graph TD
@@ -43,7 +57,7 @@ graph TD
 
 ```
 
-## Template de Deploy de Lambdas Java
+## Pipeline de Deploy de Lambdas Java
 
 ```mermaid
 graph TD
@@ -64,7 +78,7 @@ graph TD
 
 ```
 
-## Template de Verificação de Pull Request no Sonar
+## Pipeline de Verificação de Pull Request no Sonar
 
 ```mermaid
 graph TD
