@@ -102,6 +102,7 @@ graph TD
 O objetivo desse pipeline é realizar o deploy de microservices no formato AWS Lambda com tecnologia Java 17 ou GraalVM nativo via AWS SAM.
 
 **Para AWS Lambda Convencional, os serviços que utilizam essa pipeline devem obrigatoriamente utilizar Java 17, Gradle.**
+
 **Para AWS Lambda Imagem Nativa, os serviços que utilizam essa pipeline devem obrigatoriamente a imagem Docker oficial da AWS para Build com GraalVM.**
 
 Esse pipeline utiliza o AWS SAM como template, semelhante ao AWS Cloudformation mas possui facilitadores para build e deploy. Antes de se integrar com esse pipeline certifique-se que o projeto está configurado corretamente com AWS SAM.
