@@ -83,8 +83,9 @@ Esse pipeline também precisa do `template-parameters.json` como argumento e inj
 ```mermaid
 graph TD
     LAMBDA[0.pipeline-lambda.yml] --> A2[generate-basic-constants]
-    A2 --> B2[build-java-gradle]
+    LAMBDA --> B2[build-java-gradle]    
     A2 --> C2[build-sam]
+    A2 --> D2
     B2 --> D2[sonar-analysis]
     D2 --> F2[check-delete-cloud-formation-status]
     C2 --> F2
