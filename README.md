@@ -1,4 +1,4 @@
-# dsc-shared-pipelines
+# ![DevSuperior logo](https://raw.githubusercontent.com/devsuperior/bds-assets/main/ds/devsuperior-logo-small.png) dsc-shared-pipelines
 
 Repositório de Workflows (Pipelines/Esteiras) de CI/CD que são usados no projeto [dscommerce](https://github.com/search?q=topic%3Adscommerce+org%3Adevsuperior&type=Repositories).
 
