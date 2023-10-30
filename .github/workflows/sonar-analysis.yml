@@ -14,11 +14,17 @@ on:
         required: false
         type: boolean
         default: true
+      quality-gate-name:
+        required: false
+        type: string
+        default: "dscommerce-10"
     secrets:
       sonar-token:
         required: true
       sonar-host-url:
         required: true
+env:
+  PROJECT_KEY: ${{ github.ref_name }}-${{ inputs.repository-name }}
 
 jobs:
   analyze:
@@ -35,13 +41,39 @@ jobs:
           name: build-artifacts
           path: build/
 
+  setup-sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configuração no SonarQube
+        run: |
+          # Verifica se o projeto já existe no SonarQube
+          response=$(curl -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/projects/search?projects=${{ env.PROJECT_KEY }}")
+          project_exists=$(echo $response | grep -q '"total":1' && echo 'true' || echo 'false')
+
+          # Se o projeto não existir, cria o projeto no SonarQube
+          if [ "$project_exists" = "false" ]; then
+            curl -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/projects/create" \
+            -d "project=${{ env.PROJECT_KEY }}"
+          fi
+
+          # Obtém o ID do Quality Gate com base no nome fornecido
+          response=$(curl -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/qualitygates/list")
+          gate_id=$(echo $response | jq -r --arg GATE_NAME "${{ inputs.quality-gate-name }}" '.qualitygates[] | select(.name == $GATE_NAME) | .id')
+
+          # Altera o Quality Gate do projeto
+          if [ -n "$gate_id" ]; then
+            curl -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/qualitygates/select" \
+            -d "gateId=$gate_id" \
+            -d "projectKey=${{ env.PROJECT_KEY }}"
+          fi
+
       - name: SonarQube Code Scan
         if: ${{ inputs.execute-sonar-analysis }}
         uses: sonarsource/sonarqube-scan-action@v1
         with:
           projectBaseDir: .
           args: >
-            -Dsonar.projectKey=${{ github.ref_name }}-${{ inputs.repository-name }}
+            -Dsonar.projectKey=${{ env.PROJECT_KEY }}
             -Dsonar.sources=src/main/
             -Dsonar.test=src/test/
             -Dsonar.java.binaries=build/classes/            

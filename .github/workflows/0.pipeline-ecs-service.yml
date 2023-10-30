@@ -29,6 +29,10 @@ on:
         required: false
         type: boolean
         default: true
+      quality-gate-name:
+        required: false
+        type: string
+        default: ""
     secrets:
       aws-access-key-id:
         required: true

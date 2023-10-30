@@ -6,6 +6,10 @@ on:
       repository-name:
         required: true
         type: string
+      quality-gate-name:
+        required: false
+        type: string
+        default: ""       
     secrets:
       github-token:
         required: true
