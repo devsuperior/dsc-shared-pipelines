@@ -82,7 +82,7 @@ jobs:
 
             echo "Aguardando a alteracao de estado da stack..."
 
-            sleep 10s  # Aguarda 10 segundos antes de iniciar o loop while
+            sleep 30s  # Aguarda 10 segundos antes de iniciar o loop while
 
             # Aguarda ate que o status seja "DELETE_IN_PROGRESS"
             while [[ $status == *"IN_PROGRESS" ]]; do
