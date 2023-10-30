@@ -41,10 +41,7 @@ jobs:
           name: build-artifacts
           path: build/
 
-  setup-sonarqube:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configuração no SonarQube
+      - name: Configure Quality Gate
         run: |
           # Verifica se o projeto já existe no SonarQube
           response=$(curl -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/projects/search?projects=${{ env.PROJECT_KEY }}")
