@@ -44,23 +44,24 @@ jobs:
       - name: Configure Quality Gate
         run: |
           # Verifica se o projeto já existe no SonarQube
-          response=$(curl -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/projects/search?projects=${{ env.PROJECT_KEY }}")
+          response=$(curl -v -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/projects/search?projects=${{ env.PROJECT_KEY }}")
           project_exists=$(echo $response | grep -q '"total":1' && echo 'true' || echo 'false')
 
           # Se o projeto não existir, cria o projeto no SonarQube
           if [ "$project_exists" = "false" ]; then
-            curl -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/projects/create" \
+            curl -v -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/projects/create" \
             -d "project=${{ env.PROJECT_KEY }}"
           fi
 
           # Obtém o ID do Quality Gate com base no nome fornecido
-          response=$(curl -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/qualitygates/list")
+          response=$(curl -v -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/qualitygates/list")
           gate_id=$(echo $response | jq -r --arg GATE_NAME "${{ inputs.quality-gate-name }}" '.qualitygates[] | select(.name == $GATE_NAME) | .id')
 
           # Altera o Quality Gate do projeto
           if [ -n "$gate_id" ]; then
-            curl -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/qualitygates/select" \
+            curl -v -u ${{ secrets.sonar-token }}: -X POST "${{ secrets.sonar-host-url }}/api/qualitygates/select" \
             -d "gateId=$gate_id" \
+            -d "name=${{ env.PROJECT_KEY }}" \
             -d "projectKey=${{ env.PROJECT_KEY }}"
           fi
 
