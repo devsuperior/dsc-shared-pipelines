@@ -27,6 +27,10 @@ on:
       native-image:
         required: true
         type: boolean
+      quality-gate-name:
+        required: false
+        type: string
+        default: ""        
     secrets:
       aws-access-key-id:
         required: true
