@@ -85,11 +85,11 @@ jobs:
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
 
   check-delete-cloud-formation-status:
-    needs: [build-push-docker-image]
+    needs: [build-push-docker-image, generate-basic-constants]
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-delete-cloud-formation-status.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
-      stack-name: ${{ jobs.generate-basic-constants.outputs.stack-name }}
+      stack-name: ${{ needs.generate-basic-constants.outputs.stack-name }}
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
