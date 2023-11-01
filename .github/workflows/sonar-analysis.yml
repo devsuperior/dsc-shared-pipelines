@@ -42,6 +42,7 @@ jobs:
           path: build/
 
       - name: Configure Quality Gate
+        if: ${{ inputs.execute-sonar-analysis }}
         run: |
           # Verifica se o projeto já existe no SonarQube
           response=$(curl -v -u ${{ secrets.sonar-token }}: -X GET "${{ secrets.sonar-host-url }}/api/projects/search?projects=${{ env.PROJECT_KEY }}")
