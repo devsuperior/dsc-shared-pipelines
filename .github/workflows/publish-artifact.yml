@@ -1,4 +1,4 @@
-name: SonarQube Analysis
+name: Publish artifact
 
 on:
   workflow_call:
@@ -17,7 +17,7 @@ on:
 
 jobs:
   analyze:
-    name: Analyze with Sonar
+    name: Publish artifact
     runs-on: ubuntu-latest
 
     steps:
