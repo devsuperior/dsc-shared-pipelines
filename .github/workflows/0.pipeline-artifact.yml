@@ -1,0 +1,61 @@
+name: Publish Artifact using AWS CodeArtifact
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      check-quality-gate:
+        required: false
+        type: boolean
+        default: true
+      execute-sonar-analysis:
+        required: false
+        type: boolean
+        default: true
+      quality-gate-name:
+        required: false
+        type: string
+        default: ""
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true
+      sonar-token:
+        required: true
+      sonar-host-url:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  generate-basic-constants:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/generate-basic-constants.yml@main
+
+  build-java-gradle:
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/build-java-gradle.yml@main
+
+  sonar-analysis:
+    needs: [build-java-gradle, generate-basic-constants]    
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/sonar-analysis.yml@main
+    with:
+      repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
+      check-quality-gate: ${{ inputs.check-quality-gate }}
+      execute-sonar-analysis: ${{ inputs.execute-sonar-analysis }}
+    secrets:
+      sonar-token: ${{ secrets.sonar-token }}
+      sonar-host-url: ${{ secrets.sonar-host-url }}
+
+  publish-artifact:
+    needs: [sonar-analysis, generate-basic-constants]
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/publish-artifact.yml@main
+    with:
+      aws-region: ${{ inputs.aws-region }}
+      environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}      
+    secrets:
+      aws-access-key-id: ${{ secrets.aws-access-key-id }}
+      aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+
