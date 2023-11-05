@@ -88,7 +88,7 @@ jobs:
                   continue
                 fi
 
-                latest_version_id=$(aws appconfig get-configuration-profile --application-id "$application_id" --configuration-profile-id $profile_id --query 'LatestVersionNumber' --output text || echo "None")
+                latest_version_id=$(aws appconfig list-hosted-configuration-versions --application-id "$application_id" --configuration-profile-id "$profile_id" --max-items 1 --query 'Items[0].VersionNumber' --output json || echo "None")
 
                 echo "latest_version_id=$latest_version_id"
 
