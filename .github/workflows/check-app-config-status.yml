@@ -27,7 +27,7 @@ jobs:
     name: Check AppConfig Deployment
     runs-on: ubuntu-latest
     outputs:
-      requires-cloudformation: ${{ steps.set-output.outputs.requires-cloudformation }}
+      requires-cloudformation: ${{ steps.check-and-deploy.outputs.requires-cloudformation }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -41,7 +41,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Deployment Verification and Operations
+      - id: check-and-deploy
+        name: Deployment Verification and Operations
         run: |
           echo "Verificando aplicacao pelo nome: ${{ inputs.repository-name }}"
 
@@ -54,8 +55,9 @@ jobs:
           else
             echo "Aplicacao existe."
             application_exists="true"
+            environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='${{ inputs.environment-name }}'].Id" --output text || echo "None")
 
-            if aws appconfig get-environment --application-id "$application_id" --environment-id ${{ inputs.environment-name }} &>/dev/null; then
+            if [[ $environment_id != "None" ]]; then
               echo "Ambiente existe."
               environment_exists="true"
             else
@@ -81,9 +83,9 @@ jobs:
                   continue
                 fi
 
-                aws appconfig get-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml
+                aws appconfig get-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml || echo "None"
 
-                if ! cmp -s "$file" "latest-content.yml"; then
+                if [[ -f "latest-content.yml" && ! cmp -s "$file" "latest-content.yml" ]]; then
                   echo "Diferencas encontradas, criando nova versao."
                   content=$(<"$file")
                   aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --content "$content" --content-type "application/x-yaml"
@@ -91,7 +93,7 @@ jobs:
                   echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao."
                 fi
 
-                rm latest-content.yml
+                rm -f latest-content.yml
               done
             fi
           fi
@@ -101,7 +103,5 @@ jobs:
             requires_cloudformation="true"
           fi
           
-          echo "requires-cloudformation=$requires_cloudformation" >> $GITHUB_ENV
+          echo "requires-cloudformation=$requires_cloudformation" >> $GITHUB_OUTPUT
 
-      - name: Define output
-        run: echo "requires-cloudformation=${{ env.requires-cloudformation }}" >> $GITHUB_OUTPUT
