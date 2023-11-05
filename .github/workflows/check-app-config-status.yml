@@ -24,6 +24,7 @@ on:
 
 jobs:
   appconfig-deploy:
+    name: Check AppConfig Deployment
     runs-on: ubuntu-latest
     outputs:
       requires-cloudformation: ${{ steps.set-output.outputs.requires-cloudformation }}
