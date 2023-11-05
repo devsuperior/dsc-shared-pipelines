@@ -118,7 +118,7 @@ jobs:
                   echo "-----------------------"
                   content=$(<"$file")
                   content_base64=$(echo "$content" | base64 -w 0)
-                  result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada pelo pipeline" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
+                  result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada no pipe $(date -u +%Y%m%d-%H_%M_%S)" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
                   echo "result=$result"
                   cat generate-version-result.json
                 else
