@@ -48,6 +48,8 @@ jobs:
 
           application_id=$(aws appconfig list-applications --query "Items[?Name=='${{ inputs.repository-name }}'].Id" --output text || echo "None")
           
+          echo "application_id=$application_id"
+
           if [[ $application_id == "None" ]]; then
             echo "Aplicacao ${{ inputs.repository-name }} nao encontrada."
             application_exists="false"
@@ -55,7 +57,10 @@ jobs:
           else
             echo "Aplicacao existe."
             application_exists="true"
+
             environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='${{ inputs.environment-name }}'].Id" --output text || echo "None")
+
+            echo "environment_id=$environment_id"
 
             if [[ $environment_id != "None" ]]; then
               echo "Ambiente existe."
@@ -71,6 +76,9 @@ jobs:
                 echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
                 
                 profile_id=$(aws appconfig list-configuration-profiles --application-id "$application_id" --query "Items[?Name=='$profile_name'].Id" --output text || echo "None")
+
+                echo "profile_id=$profile_id"
+
                 if [[ $profile_id == "None" ]]; then
                   echo "Perfil $profile_name nao existe."
                   continue
@@ -78,12 +86,16 @@ jobs:
 
                 latest_version_id=$(aws appconfig get-configuration-profile --application-id "$application_id" --configuration-profile-id $profile_id --query 'LatestVersionNumber' --output text || echo "None")
 
+                echo "latest_version_id=$latest_version_id"
+
                 if [[ $latest_version_id == "None" ]]; then
                   echo "Nenhuma versao de configuracao encontrada para $profile_name."
                   continue
                 fi
 
                 aws appconfig get-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml || echo "None"
+
+                echo "latest-content.yml criado."
 
                 if [[ -f "latest-content.yml" ]] && ! cmp -s "$file" "latest-content.yml"; then
                   echo "Diferencas encontradas, criando nova versao."
