@@ -12,6 +12,10 @@ on:
       environment-name:
         required: true
         type: string
+      deployment-strategy:
+        required: false
+        type: string
+        default: 'AppConfig.AllAtOnce'
     secrets:
       aws-access-key-id:
         required: true
@@ -123,7 +127,20 @@ jobs:
                     result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada no pipe $(date -u +%Y%m%d-%H_%M_%S)" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
                     echo "result=$result"
                     cat generate-version-result.json
-                      
+                    echo "-----------------------"
+                    echo "-----------------------"
+                    echo "-----------------------"
+                    deploy_info=$(aws appconfig start-deployment \
+                      --application-id "$application_id" \
+                      --environment-id "$environment_id" \
+                      --deployment-strategy-id "${{ deployment-strategy }}" \
+                      --configuration-profile-id "$profile_id" \
+                      --configuration-version "result" \
+                      --output json || echo "None")
+
+                    echo "deploy_info=$deploy_info"
+                    echo "-----------------------"
+                    echo "Acompanhe o deploy em: https://${{ inputs.aws-region }}.console.aws.amazon.com/systems-manager/appconfig/applications/$application_id/environments/$environment_id/deployments/1/details?region=${{ inputs.aws-region }}"
                   else
                       echo "Os arquivos são iguais."
                       echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao."
