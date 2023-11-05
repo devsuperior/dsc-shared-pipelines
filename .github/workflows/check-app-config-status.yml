@@ -67,11 +67,31 @@ jobs:
             profile-id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile-name'].Id" --output text || true)
             if [[ $profile-id == "None" || -z $profile-id ]]; then
               echo "Perfil $profile-name nao existe"
-            else
-              echo "Perfil $profile-name existe, criando nova versao"
+              continue
+            fi
+
+            echo "Recuperando ID da ultima versao de configuracao para o perfil $profile-name"
+            latest-version-id=$(aws appconfig get-configuration-profile --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --query 'LatestVersionNumber' --output text || true)
+
+            if [[ $latest-version-id == "None" || -z $latest-version-id ]]; then
+              echo "Nenhuma versao de configuracao encontrada para $profile-name"
+              continue
+            fi
+
+            echo "Recuperando conteudo da ultima versao hospedada"
+            aws appconfig get-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --version-number $latest-version-id --query 'Content' --output text > latest-content.yml || true
+
+            echo "Comparando conteudo da ultima versao hospedada com o arquivo local"
+            if ! cmp -s "$file" "latest-content.yml"; then
+              echo "Diferencas encontradas, criando nova versao"
               content=$(cat $file)
               aws appconfig create-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --content "$content" --content-type "application/json" || true
+            else
+              echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao"
             fi
+
+            # Remova o arquivo temporário da versão hospedada
+            rm latest-content.json
           done
 
       - name: Define output
