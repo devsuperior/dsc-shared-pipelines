@@ -119,6 +119,10 @@ jobs:
           if [[ $application_exists == 'false' || $environment_exists == 'false' ]]; then
             requires_cloudformation="true"
           fi
+
+          echo "application_exists=$application_exists"
+          echo "environment_exists=$environment_exists"
+          echo "requires_cloudformation=$requires_cloudformation"
           
           echo "requires-cloudformation=$requires_cloudformation" >> $GITHUB_OUTPUT
 
