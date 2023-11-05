@@ -85,7 +85,7 @@ jobs:
 
                 aws appconfig get-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml || echo "None"
 
-                if [[ -f "latest-content.yml" && ! cmp -s "$file" "latest-content.yml" ]]; then
+                if [[ -f "latest-content.yml" ]] && ! cmp -s "$file" "latest-content.yml"; then
                   echo "Diferencas encontradas, criando nova versao."
                   content=$(<"$file")
                   aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --content "$content" --content-type "application/x-yaml"
