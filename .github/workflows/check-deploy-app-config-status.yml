@@ -124,19 +124,22 @@ jobs:
                     echo "-----------------------"
                     content=$(<"$file")
                     content_base64=$(echo "$content" | base64 -w 0)
-                    result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada no pipe $(date -u +%Y%m%d-%H_%M_%S)" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
+                    result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada no pipe $(date -u +%Y%m%d-%H_%M_%S)" --output json generate-version-result.json || echo "None")
                     echo "result=$result"
                     cat generate-version-result.json
                     echo "-----------------------"
                     echo "-----------------------"
                     echo "-----------------------"
 
+                    new_profile_version=$(echo "$result" | jq -r '.VersionNumber')
+                    echo "new_profile_version=$new_profile_version"
+
                     echo "Iniciando deploy. Variaveis que vao ser usadas: application_id=$application_id, environment_id=$environment_id, deployment-strategy=${{ inputs.deployment-strategy }}, profile_id=$profile_id, result=$result"
                     deploy_info=$(aws appconfig start-deployment \
                       --application-id "$application_id" \
                       --environment-id "$environment_id" \
                       --deployment-strategy-id "${{ inputs.deployment-strategy }}" \
-                      --configuration-profile-id "$profile_id" \
+                      --configuration-profile-id "$new_profile_version" \
                       --configuration-version "$result" \
                       --description "$env_name deploy gerado no pipe $(date -u +%Y%m%d-%H_%M_%S)" \
                       --debug \
