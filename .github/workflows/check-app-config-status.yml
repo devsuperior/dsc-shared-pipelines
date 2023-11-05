@@ -55,47 +55,36 @@ jobs:
         id: env-check
         if: ${{ env.application-exists == 'true' }}
         run: |
-          if aws appconfig get-environment --application-id ${{ inputs.repository-name }} --environment-id ${{ inputs.environment-name }} || true; then
-            echo "Ambiente existe"
-            echo "environment-exists=true" >> $GITHUB_ENV
-          else
-            echo "Ambiente nao existe"
-            echo "environment-exists=false" >> $GITHUB_ENV
-          fi
-
-      - name: Verify if configuration profiles exists and create new version if exists
-        if: ${{ env.environment-exists == 'true' }}
-        run: |
           for file in application*; do
-            profile-name="$(file)"
-            echo "Verificando perfil: $profile-name"
-            profile-id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile-name'].Id" --output text || true)
-            if [[ $profile-id == "None" || -z $profile-id ]]; then
-              echo "Perfil $profile-name nao existe"
+            profile_name="$file"
+            echo "Verificando perfil: $profile_name"
+            profile_id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile_name'].Id" --output text || true)
+            if [[ $profile_id == "None" || -z $profile_id ]]; then
+              echo "Perfil $profile_name nao existe"
               continue
             fi
 
-            echo "Recuperando ID da ultima versao de configuracao para o perfil $profile-name"
-            latest-version-id=$(aws appconfig get-configuration-profile --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --query 'LatestVersionNumber' --output text || true)
+            echo "Recuperando ID da ultima versao de configuracao para o perfil $profile_name"
+            latest_version_id=$(aws appconfig get-configuration-profile --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --query 'LatestVersionNumber' --output text || true)
 
-            if [[ $latest-version-id == "None" || -z $latest-version-id ]]; then
-              echo "Nenhuma versao de configuracao encontrada para $profile-name"
+            if [[ $latest_version_id == "None" || -z $latest_version_id ]]; then
+              echo "Nenhuma versao de configuracao encontrada para $profile_name"
               continue
             fi
 
             echo "Recuperando conteudo da ultima versao hospedada"
-            aws appconfig get-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --version-number $latest-version-id --query 'Content' --output text > latest-content.yml || true
+            aws appconfig get-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml || true
 
             echo "Comparando conteudo da ultima versao hospedada com o arquivo local"
             if ! cmp -s "$file" "latest-content.yml"; then
               echo "Diferencas encontradas, criando nova versao"
-              content=$(cat $file)
-              aws appconfig create-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --content "$content" --content-type "application/json" || true
+              content=$(cat "$file")
+              aws appconfig create-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --content "$content" --content-type "application/x-yaml" || true
             else
               echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao"
             fi
 
-            # Remova o arquivo temporário da versão hospedada
+            # Remove o arquivo temporário da versão hospedada
             rm latest-content.yml
           done
 
