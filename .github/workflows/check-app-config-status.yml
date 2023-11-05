@@ -67,7 +67,7 @@ jobs:
         if: ${{ env.environment-exists == 'true' }}
         run: |
           for file in application*; do
-            profile-name="${file%.*}"
+            profile-name="$file"
             echo "Verificando perfil: $profile-name"
             profile-id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile-name'].Id" --output text || true)
             if [[ $profile-id == "None" || -z $profile-id ]]; then
