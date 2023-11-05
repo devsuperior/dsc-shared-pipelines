@@ -136,6 +136,8 @@ jobs:
                       --deployment-strategy-id "${{ inputs.deployment-strategy }}" \
                       --configuration-profile-id "$profile_id" \
                       --configuration-version "$result" \
+                      --description "$env_name deploy gerado no pipe $(date -u +%Y%m%d-%H_%M_%S)" \
+                      --debug \
                       --output json || echo "None")
 
                     echo "deploy_info=$deploy_info"                
@@ -145,7 +147,8 @@ jobs:
                       echo "Falha ao tentar fazer o deploy."
                     else                
                       echo "Deploy iniciado."
-                      echo "Acompanhe o deploy em: https://${{ inputs.aws-region }}.console.aws.amazon.com/systems-manager/appconfig/applications/$application_id/environments/$environment_id/deployments/1/details?region=${{ inputs.aws-region }}"
+                      deployment_number=$(echo "$deploy_info" | jq -r '.DeploymentNumber')
+                      echo "Acompanhe o deploy em: https://${{ inputs.aws-region }}.console.aws.amazon.com/systems-manager/appconfig/applications/$application_id/environments/$environment_id/deployments/${deployment_number}/details?region=${{ inputs.aws-region }}"
                     fi                    
                   else
                       echo "Os arquivos são iguais."
