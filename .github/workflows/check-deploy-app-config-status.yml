@@ -133,7 +133,7 @@ jobs:
                     deploy_info=$(aws appconfig start-deployment \
                       --application-id "$application_id" \
                       --environment-id "$environment_id" \
-                      --deployment-strategy-id "${{ deployment-strategy }}" \
+                      --deployment-strategy-id "${{ inputs.deployment-strategy }}" \
                       --configuration-profile-id "$profile_id" \
                       --configuration-version "result" \
                       --output json || echo "None")
