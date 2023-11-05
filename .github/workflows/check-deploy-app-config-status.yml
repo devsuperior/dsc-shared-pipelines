@@ -135,7 +135,7 @@ jobs:
                       --environment-id "$environment_id" \
                       --deployment-strategy-id "${{ inputs.deployment-strategy }}" \
                       --configuration-profile-id "$profile_id" \
-                      --configuration-version "result" \
+                      --configuration-version "$result" \
                       --output json || echo "None")
 
                     echo "deploy_info=$deploy_info"                
