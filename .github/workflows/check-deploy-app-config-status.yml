@@ -57,7 +57,7 @@ jobs:
           application_exists="false"
           environment_exists="false"
 
-          if [[ $application_id == "None" && $application_id != "" && ! $application_id == *"erro"* ]]; then
+          if [[ $application_id == "None" || $application_id == "" || $application_id == *"erro"* ]]; then
             echo "Aplicacao ${{ inputs.repository-name }} nao encontrada."
           else
             echo "Aplicacao existe."
@@ -75,9 +75,15 @@ jobs:
 
               echo "environment_id=$environment_id"              
 
-              if [[ $environment_id != "None" && $environment_id != "" && ! $environment_id == *"erro"* ]]; then
+              if [[ $environment_id == "None" || $environment_id == "" || $environment_id == *"erro"* ]]; then
+                echo "Ambiente nao existe."
+              else
                 echo "Ambiente existe."
                 environment_exists="true"
+                environment_exists="true"
+              else
+                echo "Ambiente nao existe."
+                environment_exists="true"                
               else
                 echo "Ambiente nao existe."
               fi
@@ -97,7 +103,7 @@ jobs:
 
                 echo "latest_version_id=$latest_version_id"
 
-                if [[ $latest_version_id == "None" && $latest_version_id != "" && ! $latest_version_id == *"erro"* ]]; then
+                if [[ $latest_version_id == "None" || $latest_version_id == "" || $latest_version_id == *"erro"* ]]; then
                   echo "Nenhuma versao de configuracao encontrada para $profile_name."
                   continue
                 fi
@@ -107,12 +113,12 @@ jobs:
                 echo "profile_description=$profile_description"
 
                 content_exported="false"
-                if [[ $profile_description != "None" && $profile_description != "" && ! $profile_description == *"erro"* ]]; then
+                if [[ $profile_description == "None" || $profile_description == "" || $profile_description == *"erro"* ]]; then
+                  echo "Falha ao exportar latest-content.yml. Verifique."
+                else                
                   echo "latest-content.yml criado."
                   cat latest-content.yml
                   content_exported="true"
-                else
-                  echo "Falha ao exportar latest-content.yml. Verifique."
                 fi
 
                 if [[ -f "latest-content.yml" ]] && [[ $content_exported == "true" ]]; then
