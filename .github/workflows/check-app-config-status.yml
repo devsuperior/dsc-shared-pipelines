@@ -41,72 +41,67 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Verify if application exists
-        id: app-check
+      - name: Deployment Verification and Operations
         run: |
-          if aws appconfig get-application --application-id ${{ inputs.repository-name }} || true; then
-            echo "Aplicacao existe"
-            echo "application-exists=true" >> $GITHUB_ENV
+          echo "Verificando aplicacao pelo nome: ${{ inputs.repository-name }}"
+
+          application_id=$(aws appconfig list-applications --query "Items[?Name=='${{ inputs.repository-name }}'].Id" --output text || echo "None")
+          
+          if [[ $application_id == "None" ]]; then
+            echo "Aplicacao ${{ inputs.repository-name }} nao encontrada."
+            application_exists="false"
+            environment_exists="false"
           else
-            echo "Aplicacao nao existe"
-            echo "application-exists=false" >> $GITHUB_ENV
-          fi
+            echo "Aplicacao existe."
+            application_exists="true"
 
-      - name: Verify if environment exists
-        id: env-check
-        if: ${{ env.application-exists == 'true' }}
-        run: |
-          if aws appconfig get-environment --application-id ${{ inputs.repository-name }} --environment-id ${{ inputs.environment-name }} || true; then
-            echo "Ambiente existe"
-            echo "environment-exists=true" >> $GITHUB_ENV
-          else
-            echo "Ambiente nao existe"
-            echo "environment-exists=false" >> $GITHUB_ENV
-          fi
-
-      - name: Verify if configuration profiles exists and create new version if exists
-        if: ${{ env.environment-exists == 'true' }}
-        run: |
-          for file in application*; do
-            profile_name="$file"
-            echo "Verificando perfil: $profile_name"
-            profile_id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile_name'].Id" --output text || true)
-            if [[ $profile_id == "None" || -z $profile_id ]]; then
-              echo "Perfil $profile_name nao existe"
-              continue
-            fi
-
-            echo "Recuperando ID da ultima versao de configuracao para o perfil $profile_name"
-            latest_version_id=$(aws appconfig get-configuration-profile --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --query 'LatestVersionNumber' --output text || true)
-
-            if [[ $latest_version_id == "None" || -z $latest_version_id ]]; then
-              echo "Nenhuma versao de configuracao encontrada para $profile_name"
-              continue
-            fi
-
-            echo "Recuperando conteudo da ultima versao hospedada"
-            aws appconfig get-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml || true
-
-            echo "Comparando conteudo da ultima versao hospedada com o arquivo local"
-            if ! cmp -s "$file" "latest-content.yml"; then
-              echo "Diferencas encontradas, criando nova versao"
-              content=$(cat "$file")
-              aws appconfig create-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile_id --content "$content" --content-type "application/x-yaml" || true
+            if aws appconfig get-environment --application-id "$application_id" --environment-id ${{ inputs.environment-name }} &>/dev/null; then
+              echo "Ambiente existe."
+              environment_exists="true"
             else
-              echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao"
+              echo "Ambiente nao existe."
+              environment_exists="false"
             fi
 
-            # Remove o arquivo temporário da versão hospedada
-            rm latest-content.yml
-          done
+            if [[ $environment_exists == "true" ]]; then
+              for file in application*; do
+                profile_name="${file}"
+                echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
+                
+                profile_id=$(aws appconfig list-configuration-profiles --application-id "$application_id" --query "Items[?Name=='$profile_name'].Id" --output text || echo "None")
+                if [[ $profile_id == "None" ]]; then
+                  echo "Perfil $profile_name nao existe."
+                  continue
+                fi
+
+                latest_version_id=$(aws appconfig get-configuration-profile --application-id "$application_id" --configuration-profile-id $profile_id --query 'LatestVersionNumber' --output text || echo "None")
+
+                if [[ $latest_version_id == "None" ]]; then
+                  echo "Nenhuma versao de configuracao encontrada para $profile_name."
+                  continue
+                fi
+
+                aws appconfig get-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --version-number $latest_version_id --query 'Content' --output text > latest-content.yml
+
+                if ! cmp -s "$file" "latest-content.yml"; then
+                  echo "Diferencas encontradas, criando nova versao."
+                  content=$(<"$file")
+                  aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id $profile_id --content "$content" --content-type "application/x-yaml"
+                else
+                  echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao."
+                fi
+
+                rm latest-content.yml
+              done
+            fi
+          fi
+          
+          requires_cloudformation="false"
+          if [[ $application_exists == 'false' || $environment_exists == 'false' ]]; then
+            requires_cloudformation="true"
+          fi
+          
+          echo "requires-cloudformation=$requires_cloudformation" >> $GITHUB_ENV
 
       - name: Define output
-        id: set-output
-        run: |
-          echo "Verificando se e necessario executar o CloudFormation"
-          if [[ $application-exists == 'false' || $environment-exists == 'false' ]]; then
-            echo "requires-cloudformation=true" >> $GITHUB_OUTPUT
-          else
-            echo "requires-cloudformation=true" >> $GITHUB_OUTPUT
-          fi
-
+        run: echo "requires-cloudformation=${{ env.requires-cloudformation }}" >> $GITHUB_OUTPUT
