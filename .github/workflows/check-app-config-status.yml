@@ -60,6 +60,7 @@ jobs:
             application_exists="true"
 
             for file in application*; do
+              echo "---------------------------------------------------------------------------------------------------------------------"
               profile_name="${file}"
               echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
               
@@ -112,6 +113,9 @@ jobs:
 
                 if [[ -f "latest-content.yml" ]] && [[ $content_exported == "true" ]] && ! cmp -s "$file" "latest-content.yml"; then
                   echo "Diferencas encontradas, criando nova versao."
+                  echo "-----------------------"
+                  echo "-----------------------"
+                  echo "-----------------------"
                   content=$(<"$file")
                   content_base64=$(echo "$content" | base64 -w 0)
                   result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content_base64" --content-type "application/x-yaml" --description "$env_name Nova versao gerada pelo pipeline" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
