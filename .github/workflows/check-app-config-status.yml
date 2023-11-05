@@ -64,8 +64,9 @@ jobs:
               echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
               
               env_name=$(echo $profile_name | sed 's/application-\(.*\).yml/\1/')
+              echo "env_name=$env_name"
 
-              environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='${{ inputs.environment-name }}'].Id" --output text || echo "None")
+              environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='$env_name'].Id" --output text || echo "None")
 
               echo "environment_id=$environment_id"              
 
