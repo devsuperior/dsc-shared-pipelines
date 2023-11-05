@@ -50,31 +50,34 @@ jobs:
           
           echo "application_id=$application_id"
 
+          application_exists="false"
+          environment_exists="false"
+
           if [[ $application_id == "None" ]]; then
             echo "Aplicacao ${{ inputs.repository-name }} nao encontrada."
-            application_exists="false"
-            environment_exists="false"
           else
             echo "Aplicacao existe."
             application_exists="true"
 
-            environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='${{ inputs.environment-name }}'].Id" --output text || echo "None")
+            for file in application*; do
+              profile_name="${file}"
+              echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
+              
+              env_name=$(echo $profile_name | sed 's/application-\(.*\).yml/\1/')
 
-            echo "environment_id=$environment_id"
+              environment_id=$(aws appconfig list-environments --application-id "$application_id" --query "Items[?Name=='${{ inputs.environment-name }}'].Id" --output text || echo "None")
 
-            if [[ $environment_id != "None" && $environment_id != "" ]]; then
-              echo "Ambiente existe."
-              environment_exists="true"
-            else
-              echo "Ambiente nao existe."
-              environment_exists="false"
-            fi
+              echo "environment_id=$environment_id"              
 
-            if [[ $environment_exists == "true" ]]; then
-              for file in application*; do
-                profile_name="${file}"
-                echo "Verificando perfil: $profile_name para a aplicacao ${{ inputs.repository-name }}"
-                
+              if [[ $environment_id != "None" && $environment_id != "" ]]; then
+                echo "Ambiente existe."
+                environment_exists="true"
+              else
+                echo "Ambiente nao existe."
+              fi
+
+              if [[ $environment_exists == "true" ]]; then
+
                 profile_id=$(aws appconfig list-configuration-profiles --application-id "$application_id" --query "Items[?Name=='$profile_name'].Id" --output text || echo "None")
 
                 echo "profile_id=$profile_id"
@@ -106,8 +109,9 @@ jobs:
                 fi
 
                 rm -f latest-content.yml
-              done
-            fi
+              fi
+            done
+
           fi
           
           requires_cloudformation="false"
