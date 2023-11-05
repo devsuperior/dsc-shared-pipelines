@@ -1,0 +1,86 @@
+name: Check AppConfig Deployment
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+      repository-name:
+        required: true
+        type: string
+      environment-name:
+        required: true
+        type: string
+    outputs:
+      requires-cloudformation:
+        description: "Indica se o CloudFormation deve ser executado"
+        value: ${{ jobs.appconfig-deploy.outputs.requires-cloudformation }}
+
+jobs:
+  appconfig-deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      requires-cloudformation: ${{ steps.set-output.outputs.requires-cloudformation }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Verify if application exists
+        id: app-check
+        run: |
+          if aws appconfig get-application --application-id ${{ inputs.repository-name }} || true; then
+            echo "Aplicacao existe"
+            echo "application-exists=true" >> $GITHUB_ENV
+          else
+            echo "Aplicacao nao existe"
+            echo "application-exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Verify if environment exists
+        id: env-check
+        if: env.application-exists == 'true'
+        run: |
+          if aws appconfig get-environment --application-id ${{ inputs.repository-name }} --environment-id ${{ inputs.environment-name }} || true; then
+            echo "Ambiente existe"
+            echo "environment-exists=true" >> $GITHUB_ENV
+          else
+            echo "Ambiente nao existe"
+            echo "environment-exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Verify if configuration profiles exists and create new version if exists
+        if: env.environment-exists == 'true'
+        run: |
+          for file in application*; do
+            profile-name="${file%.*}"
+            echo "Verificando perfil: $profile-name"
+            profile-id=$(aws appconfig list-configuration-profiles --application-id ${{ inputs.repository-name }} --query "Items[?Name=='$profile-name'].Id" --output text || true)
+            if [[ $profile-id == "None" || -z $profile-id ]]; then
+              echo "Perfil $profile-name nao existe"
+            else
+              echo "Perfil $profile-name existe, criando nova versao"
+              content=$(cat $file)
+              aws appconfig create-hosted-configuration-version --application-id ${{ inputs.repository-name }} --configuration-profile-id $profile-id --content "$content" --content-type "application/json" || true
+            fi
+          done
+
+      - name: Define output
+        id: set-output
+        run: |
+          echo "Verificando se e necessario executar o CloudFormation"
+          if [[ $application-exists == 'false' || $environment-exists == 'false' ]]; then
+            echo "requires-cloudformation=true" >> $GITHUB_OUTPUT
+          else
+            echo "requires-cloudformation=true" >> $GITHUB_OUTPUT
+          fi
+
