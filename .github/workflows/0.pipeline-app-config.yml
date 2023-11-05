@@ -62,7 +62,7 @@ jobs:
 
   deploy-cloud-formation:
     needs: [check-delete-cloud-formation-status, generate-complete-template-parameters-app-config, generate-basic-constants, check-app-config-status]
-    if: ${{ needs.check-app-config-status.outputs.requires-cloudformation }}
+    if: ${{ needs.check-app-config-status.outputs.requires-cloudformation == 'true' }}
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/deploy-cloud-formation.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
