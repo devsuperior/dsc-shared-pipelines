@@ -12,6 +12,11 @@ on:
       environment-name:
         required: true
         type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+      aws-secret-access-key:
+        required: true        
     outputs:
       requires-cloudformation:
         description: "Indica se o CloudFormation deve ser executado"
