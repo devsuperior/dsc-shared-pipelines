@@ -130,6 +130,8 @@ jobs:
                     echo "-----------------------"
                     echo "-----------------------"
                     echo "-----------------------"
+
+                    echo "Iniciando deploy. Variaveis que vao ser usadas: application_id=$application_id, environment_id=$environment_id, deployment-strategy=${{ inputs.deployment-strategy }}, profile_id=$profile_id, result=$result"
                     deploy_info=$(aws appconfig start-deployment \
                       --application-id "$application_id" \
                       --environment-id "$environment_id" \
