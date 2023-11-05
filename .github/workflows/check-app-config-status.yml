@@ -48,7 +48,7 @@ jobs:
 
       - name: Verify if environment exists
         id: env-check
-        if: env.application-exists == 'true'
+        if: ${{ env.application-exists == 'true' }}
         run: |
           if aws appconfig get-environment --application-id ${{ inputs.repository-name }} --environment-id ${{ inputs.environment-name }} || true; then
             echo "Ambiente existe"
@@ -59,7 +59,7 @@ jobs:
           fi
 
       - name: Verify if configuration profiles exists and create new version if exists
-        if: env.environment-exists == 'true'
+        if: ${{ env.environment-exists == 'true' }}
         run: |
           for file in application*; do
             profile-name="${file%.*}"
@@ -91,7 +91,7 @@ jobs:
             fi
 
             # Remova o arquivo temporário da versão hospedada
-            rm latest-content.json
+            rm latest-content.yml
           done
 
       - name: Define output
