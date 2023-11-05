@@ -49,9 +49,9 @@ jobs:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
-  check-app-config-status:
+  check-deploy-app-config-status:
     needs: [check-delete-cloud-formation-status, generate-basic-constants]
-    uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-app-config-status.yml@main
+    uses: devsuperior/dsc-shared-pipelines/.github/workflows/check-deploy-app-config-status.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
@@ -61,8 +61,8 @@ jobs:
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
 
   deploy-cloud-formation:
-    needs: [check-delete-cloud-formation-status, generate-complete-template-parameters-app-config, generate-basic-constants, check-app-config-status]
-    if: ${{ needs.check-app-config-status.outputs.requires-cloudformation == 'true' }}
+    needs: [check-delete-cloud-formation-status, generate-complete-template-parameters-app-config, generate-basic-constants, check-deploy-app-config-status]
+    if: ${{ needs.check-deploy-app-config-status.outputs.requires-cloudformation == 'true' }}
     uses: devsuperior/dsc-shared-pipelines/.github/workflows/deploy-cloud-formation.yml@main
     with:
       aws-region: ${{ inputs.aws-region }}
