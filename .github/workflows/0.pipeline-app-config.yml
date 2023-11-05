@@ -13,6 +13,10 @@ on:
         required: false
         type: string
         default: 'template-parameters.json'
+      deployment-strategy:
+        required: false
+        type: string
+        default: 'AppConfig.AllAtOnce'
     secrets:
       aws-access-key-id:
         required: true
@@ -56,6 +60,7 @@ jobs:
       aws-region: ${{ inputs.aws-region }}
       repository-name: ${{ needs.generate-basic-constants.outputs.repository-name }}
       environment-name: ${{ needs.generate-basic-constants.outputs.environment-name }}
+      deployment-strategy: ${{ inputs.deployment-strategy }}
     secrets:
       aws-access-key-id: ${{ secrets.aws-access-key-id }}
       aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
