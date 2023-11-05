@@ -79,13 +79,7 @@ jobs:
                 echo "Ambiente nao existe."
               else
                 echo "Ambiente existe."
-                environment_exists="true"
-                environment_exists="true"
-              else
-                echo "Ambiente nao existe."
-                environment_exists="true"                
-              else
-                echo "Ambiente nao existe."
+                environment_exists="true"              
               fi
 
               if [[ $environment_exists == "true" ]]; then
