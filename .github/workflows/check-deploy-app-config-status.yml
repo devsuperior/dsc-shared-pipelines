@@ -147,6 +147,7 @@ jobs:
 
                     if [[ $deploy_info == "None" || $deploy_info == "" || $deploy_info == *"erro"* ]]; then
                       echo "Falha ao tentar fazer o deploy."
+                      exit 1
                     else                
                       echo "Deploy iniciado."
                       deployment_number=$(echo "$deploy_info" | jq -r '.DeploymentNumber')
