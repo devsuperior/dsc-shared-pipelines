@@ -62,7 +62,7 @@ jobs:
 
             echo "environment_id=$environment_id"
 
-            if [[ $environment_id != "None" ]]; then
+            if [[ $environment_id != "None" && $environment_id != "" ]]; then
               echo "Ambiente existe."
               environment_exists="true"
             else
