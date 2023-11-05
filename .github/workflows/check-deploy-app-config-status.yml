@@ -144,9 +144,15 @@ jobs:
                       --configuration-version "result" \
                       --output json || echo "None")
 
-                    echo "deploy_info=$deploy_info"
+                    echo "deploy_info=$deploy_info"                
                     echo "-----------------------"
-                    echo "Acompanhe o deploy em: https://${{ inputs.aws-region }}.console.aws.amazon.com/systems-manager/appconfig/applications/$application_id/environments/$environment_id/deployments/1/details?region=${{ inputs.aws-region }}"
+
+                    if [[ $deploy_info == "None" || $deploy_info == "" || $deploy_info == *"erro"* ]]; then
+                      echo "Falha ao tentar fazer o deploy."
+                    else                
+                      echo "Deploy iniciado."
+                      echo "Acompanhe o deploy em: https://${{ inputs.aws-region }}.console.aws.amazon.com/systems-manager/appconfig/applications/$application_id/environments/$environment_id/deployments/1/details?region=${{ inputs.aws-region }}"
+                    fi                    
                   else
                       echo "Os arquivos são iguais."
                       echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao."
