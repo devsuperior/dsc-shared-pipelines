@@ -102,7 +102,7 @@ jobs:
                 echo "profile_description=$profile_description"
 
                 content_exported="false"
-                if [[ $environment_id != "None" && $environment_id != "" && ! $environment_id == *"erro"* ]]; then
+                if [[ $profile_description != "None" && $profile_description != "" && ! $profile_description == *"erro"* ]]; then
                   echo "latest-content.yml criado."
                   cat latest-content.yml
                   content_exported="true"
@@ -113,12 +113,15 @@ jobs:
                 if [[ -f "latest-content.yml" ]] && [[ $content_exported == "true" ]] && ! cmp -s "$file" "latest-content.yml"; then
                   echo "Diferencas encontradas, criando nova versao."
                   content=$(<"$file")
-                  aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content" --content-type "application/x-yaml"
+                  result=$(aws appconfig create-hosted-configuration-version --application-id "$application_id" --configuration-profile-id "$profile_id" --content "$content" --content-type "application/x-yaml" --description "$env_name Nova versao gerada pelo pipeline" --query 'VersionNumber' --output json generate-version-result.json || echo "None")
+                  echo "result=$result"
+                  cat generate-version-result.json
                 else
                   echo "Nenhuma diferenca encontrada, nao e necessario criar nova versao."
                 fi
 
                 rm -f latest-content.yml
+                rm -f generate-version-result.json
               fi
             done
 
