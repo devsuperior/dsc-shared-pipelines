@@ -55,6 +55,17 @@ jobs:
         id: env-check
         if: ${{ env.application-exists == 'true' }}
         run: |
+          if aws appconfig get-environment --application-id ${{ inputs.repository-name }} --environment-id ${{ inputs.environment-name }} || true; then
+            echo "Ambiente existe"
+            echo "environment-exists=true" >> $GITHUB_ENV
+          else
+            echo "Ambiente nao existe"
+            echo "environment-exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Verify if configuration profiles exists and create new version if exists
+        if: ${{ env.environment-exists == 'true' }}
+        run: |
           for file in application*; do
             profile_name="$file"
             echo "Verificando perfil: $profile_name"
