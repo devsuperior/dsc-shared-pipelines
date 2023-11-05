@@ -139,8 +139,8 @@ jobs:
                       --application-id "$application_id" \
                       --environment-id "$environment_id" \
                       --deployment-strategy-id "${{ inputs.deployment-strategy }}" \
-                      --configuration-profile-id "$new_profile_version" \
-                      --configuration-version "$result" \
+                      --configuration-profile-id "$profile_id" \
+                      --configuration-version "$new_profile_version" \
                       --description "$env_name deploy gerado no pipe $(date -u +%Y%m%d-%H_%M_%S)" \
                       --debug \
                       --output json || echo "None")
